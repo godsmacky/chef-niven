@@ -5,25 +5,28 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>Chef Niven Canapé Orders</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22 fill=%22none%22 stroke=%22%2300875a%22 stroke-width=%222.4%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M16 30.5c-4.6-.4-6.4-6.6-2.6-9.2.2-5.6 6.4-8.3 10.6-5.2 4.2-3.1 10.4-.4 10.6 5.2 3.8 2.6 2 8.8-2.6 9.2%22/%3E%3Cpath d=%22M16 30.5h16v4.5H16z%22/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22 fill=%22none%22 stroke=%22%2300a36c%22 stroke-width=%222.4%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M16 30.5c-4.6-.4-6.4-6.6-2.6-9.2.2-5.6 6.4-8.3 10.6-5.2 4.2-3.1 10.4-.4 10.6 5.2 3.8 2.6 2 8.8-2.6 9.2%22/%3E%3Cpath d=%22M16 30.5h16v4.5H16z%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap">
 <style>
 /* Layout: emerald brand band, saffron total, then the canapé list; dietary rows appear only when added. Was: quiet order pad — slim brand bar, a number strip that answers "how much to prep", then the canapé list; dietary rows appear only when added */
 :root{
   --bg:#f3f8f5; --paper:#ffffff; --ink:#0f1f19; --muted:#52695f; --faint:#8fa59c; --line:#d9e7e0; --hover:#ebf6f0;
-  --green:#00875a; --green-soft:#d8f4e7; --warn:#e5483b; --sky:#1677d2;
-  --sun:#ffb21e; --sun-ink:#3a2600; --band:#00875a; --on-band:#ffffff;
+  --green:#00a36c; --green-soft:#d4f7e8; --warn:#ff4757; --sky:#2d7ff9; --sky-soft:#e1edff; --berry:#e0218a; --berry-soft:#fde3f1;
+  --sun:#ffc21a; --sun2:#ff8a1f; --on-green:#ffffff; --sun-ink:#3a2200; --band:#00a36c; --band2:#00c2a8; --band3:#15b8e0; --on-band:#ffffff;
+  --blob1:rgba(0,194,168,.16); --blob2:rgba(255,170,40,.16); --blob3:rgba(224,33,138,.09);
   --display:'Fraunces',Georgia,serif; --body:'Inter',system-ui,-apple-system,sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0d1612; --paper:#14201b; --ink:#eaf4ef; --muted:#9db6ab; --faint:#677f75; --line:#23362e; --hover:#1a2b24;
-  --green:#2fd396; --green-soft:#11342a; --warn:#ff7b6c; --sky:#5fb2ff;
-  --sun:#ffc247; --sun-ink:#2b1b00; --band:#0a6b48; --on-band:#ffffff; color-scheme:dark}}
+  --green:#34e3a1; --green-soft:#103a2c; --warn:#ff6b78; --sky:#6aa8ff; --sky-soft:#152a4a; --berry:#ff5cb3; --berry-soft:#3d1530;
+  --sun:#ffc93d; --sun2:#ff9a3c; --on-green:#04281b; --sun-ink:#2b1700; --band:#078a5e; --band2:#06907f; --band3:#0b7fa3; --on-band:#ffffff;
+  --blob1:rgba(0,194,168,.10); --blob2:rgba(255,170,40,.07); --blob3:rgba(255,92,179,.06); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0d1612; --paper:#14201b; --ink:#eaf4ef; --muted:#9db6ab; --faint:#677f75; --line:#23362e; --hover:#1a2b24;
-  --green:#2fd396; --green-soft:#11342a; --warn:#ff7b6c; --sky:#5fb2ff;
-  --sun:#ffc247; --sun-ink:#2b1b00; --band:#0a6b48; --on-band:#ffffff; color-scheme:dark}
+  --green:#34e3a1; --green-soft:#103a2c; --warn:#ff6b78; --sky:#6aa8ff; --sky-soft:#152a4a; --berry:#ff5cb3; --berry-soft:#3d1530;
+  --sun:#ffc93d; --sun2:#ff9a3c; --on-green:#04281b; --sun-ink:#2b1700; --band:#078a5e; --band2:#06907f; --band3:#0b7fa3; --on-band:#ffffff;
+  --blob1:rgba(0,194,168,.10); --blob2:rgba(255,170,40,.07); --blob3:rgba(255,92,179,.06); color-scheme:dark}
 *{box-sizing:border-box}
 html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 [hidden]{display:none!important}
@@ -118,7 +121,7 @@ details summary{cursor:pointer;color:var(--muted);font-size:.85rem}
 .evtab small{font-size:.72rem;color:var(--muted);white-space:nowrap}
 .evtab:hover{background:var(--hover)}
 .evtab[aria-current="true"]{background:var(--green);border-color:var(--green);color:var(--paper)}
-.evtab[aria-current="true"] small,.evtab[aria-current="true"] b{color:var(--paper)!important;opacity:.95}
+.evtab[aria-current="true"],.evtab[aria-current="true"] small,.evtab[aria-current="true"] b{color:var(--on-green)!important;opacity:.95}
 .evtab.all b{color:var(--green)}
 .evtab.add{justify-content:center;border-style:dashed;color:var(--muted);font-weight:500}
 .pick{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:99px;padding:6px 12px;cursor:pointer;font-size:.84rem}
@@ -148,7 +151,7 @@ td.muted{color:var(--muted)}
   #printArea{display:block;font:9pt/1.4 Arial,Helvetica,sans-serif;color:#1b2420;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 #printArea .pg{max-width:182mm;margin:0 auto}#printArea .pg.land{max-width:269mm}
-#printArea .ph{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:1.5px solid #00875a}
+#printArea .ph{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:1.5px solid #00a36c}
 #printArea .pb{display:flex;gap:9px;align-items:center}#printArea .plogo{width:36px;height:36px}#printArea .pk{font-size:6.5pt;letter-spacing:.3em;color:#6b7772;font-weight:700}#printArea .pn{font:600 17pt Georgia,serif;line-height:1}
 #printArea .pr{text-align:right}#printArea .pt{font-size:7pt;letter-spacing:.14em;text-transform:uppercase;color:#6b7772;font-weight:700}#printArea .pd{font-size:10pt;font-weight:700}
 #printArea .ev{font:600 15pt Georgia,serif;margin:12px 0 6px;border-bottom:1px solid #ccc;padding-bottom:3px;min-height:26px}
@@ -163,6 +166,51 @@ td.muted{color:var(--muted)}
 #printArea table.combo td:last-child,#printArea table.combo th:last-child{background:#fff1cc}
 #printArea tr.t td{border-top:1.2px solid #1b2420;border-bottom:0;font-weight:700}#printArea .none{color:#6b7772;margin:2px 0}
 #printArea .ck{display:flex;justify-content:space-between;gap:12px;margin-top:12px;padding:7px 0;border-top:1px solid #e0e4e2;border-bottom:1px solid #e0e4e2}
+/* ---- vibrant layer + motion ---- */
+body{background:radial-gradient(900px 500px at 8% 12%,var(--blob1),transparent 70%),radial-gradient(800px 520px at 95% 30%,var(--blob2),transparent 70%),radial-gradient(700px 500px at 40% 100%,var(--blob3),transparent 70%),var(--bg);background-attachment:fixed}
+main{background:transparent}
+header{background:linear-gradient(115deg,var(--band),var(--band2),var(--band3),var(--band2),var(--band));background-size:300% 100%;animation:flow 18s ease-in-out infinite;position:relative;overflow:hidden;box-shadow:0 10px 30px -18px rgba(0,120,90,.7)}
+header::after{content:"";position:absolute;inset:auto -10% -60% auto;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.22),transparent 65%);animation:drift 14s ease-in-out infinite alternate;pointer-events:none}
+header .wrap{position:relative;z-index:1}
+html,body::before{background:var(--band)}
+@keyframes flow{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes drift{from{transform:translate(0,0)}to{transform:translate(-260px,-40px)}}
+.brand svg{animation:hatIn .9s cubic-bezier(.3,1.6,.5,1) both;transform-origin:50% 70%}
+.brand:hover svg{animation:wiggle .6s ease-in-out}
+@keyframes hatIn{from{transform:translateY(-14px) rotate(-12deg) scale(.7)}to{transform:none}}
+@keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-9deg)}75%{transform:rotate(9deg)}}
+header .btn.primary{background:linear-gradient(135deg,var(--sun),var(--sun2));border:0;box-shadow:0 6px 18px -8px rgba(255,120,0,.8);transition:transform .15s,box-shadow .15s}
+header .btn.primary:hover{transform:translateY(-2px);box-shadow:0 10px 22px -8px rgba(255,120,0,.9)}
+.card{border:0;box-shadow:0 1px 2px rgba(0,40,30,.05),0 12px 30px -20px rgba(0,60,45,.35);border-top:4px solid var(--tone,var(--green));animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+.tone-green{--tone:var(--green)}.tone-berry{--tone:var(--berry)}.tone-sky{--tone:var(--sky)}
+.card h2{color:var(--tone,var(--green))}
+#view>*:nth-child(2){animation-delay:.06s}#view>*:nth-child(3){animation-delay:.12s}#view>*:nth-child(4){animation-delay:.18s}#view>*:nth-child(5){animation-delay:.24s}
+@keyframes rise{from{transform:translateY(14px);opacity:.01}to{transform:none;opacity:1}}
+.strip{border:0;box-shadow:0 12px 30px -20px rgba(0,60,45,.4);animation:rise .5s cubic-bezier(.2,.8,.2,1) .03s both}
+.cell.total{background:linear-gradient(135deg,var(--sun),var(--sun2))}
+.cell.total output{display:inline-block;transform-origin:left center}
+.bump{animation:bump .45s cubic-bezier(.3,1.8,.5,1)}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+.evtab{transition:transform .15s,background .2s,box-shadow .2s}
+.evtab:hover{transform:translateY(-2px);box-shadow:0 8px 18px -12px rgba(0,60,45,.5)}
+.evtab[aria-current="true"]{background:linear-gradient(135deg,var(--green),var(--band2));border-color:transparent;box-shadow:0 8px 20px -10px rgba(0,150,110,.8)}
+.evtab.all b{color:var(--berry)}
+.hc{transition:transform .15s}.hc.pop{animation:bump .35s cubic-bezier(.3,1.8,.5,1)}
+.chip{transition:transform .15s,background .15s,border-color .15s}
+.chip:hover{transform:translateY(-2px);background:var(--berry-soft);border-color:var(--berry);color:var(--berry);border-style:solid}
+.chip{border-color:var(--berry);background:var(--berry-soft);color:var(--berry)}
+.tone-berry tr.new td{animation:rowIn .45s ease-out}
+@keyframes rowIn{from{background:var(--berry-soft)}to{background:transparent}}
+.seg button[aria-pressed="true"]{background:var(--sky)}
+.seg button[data-v="no"][aria-pressed="true"]{background:var(--warn)}
+td.out{color:var(--ink)}
+td.out[data-out^="tot-"]{color:var(--green)}
+tr.sum td.out[data-out="t-total"]{color:var(--sun-ink);background:linear-gradient(135deg,var(--sun),var(--sun2));border-radius:6px}
+td.grand,table.combo th:last-child{background:linear-gradient(135deg,var(--sun),var(--sun2))}
+.toast{animation:toastIn .3s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes toastIn{from{transform:translate(-50%,20px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+.btn:not(.primary):hover{transform:translateY(-1px)}.btn{transition:transform .15s,background .15s}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 <style id="pageSize">@page{size:A4 portrait;margin:14mm}</style>
 </head>
@@ -241,7 +289,7 @@ const cell=(label,p,ph)=>`<div class="cell"><label for="${id(p)}">${label}</labe
 function eventView(){
   const dActive=DIETS.filter(([k])=>active(k)), dIdle=DIETS.filter(([k])=>!active(k)), e=E.ev||{};
   return `
-  <section class="card">
+  <section class="card tone-green">
     <div class="fields" style="grid-template-columns:1fr">${fld("Event","ev.name",{cls:"event-name",ph:"Event name"})}</div>
     <div class="fields">
       ${fld("Date","ev.date",{type:"date"})}${fld("Service time","ev.service",{ph:"18:00 – 20:00"})}${fld("Venue / room","ev.venue")}
@@ -253,7 +301,7 @@ function eventView(){
     <div class="cell total"><label>Total to prep</label><output id="bigTotal">0</output></div>
     <div class="strip-note">1 hr pre-dinner: 3–4 pcs per guest · 2 hr reception: 6–8 · 3 hr+ in place of a meal: 10–12</div>
   </section>
-  <section class="card">
+  <section class="card tone-green">
     <h2>Canapés</h2>
     <div class="tbl"><table>
       <tr><th class="l">Canapé</th><th>Pcs / guest</th><th>Standard</th><th>Dietary</th><th>Extra</th><th>To prep</th><th class="l">Allergens &amp; notes</th></tr>
@@ -270,7 +318,7 @@ function eventView(){
     <p class="hint" style="margin-top:12px">Faded numbers are calculated from guests × pieces per guest. Type over one to change it, and add any spares in Extra.</p>
     <p class="warnline" id="ppgCheck" hidden></p>
   </section>
-  <section class="card">
+  <section class="card tone-berry">
     <h2>Dietary requirements</h2>
     ${dActive.length?`<div class="tbl" style="margin-bottom:16px"><table>
       <tr><th class="l">Requirement</th><th>Guests</th><th class="l">Replaces</th><th class="l">Alternative</th><th>Alt. qty</th><th class="l">Names / table</th><th></th></tr>
@@ -291,7 +339,7 @@ function eventView(){
         <span class="seg" role="group">${["yes","no"].map(x=>`<button type="button" data-seg="labelled" data-v="${x}" aria-pressed="${e.labelled===x}">${x==="yes"?"Yes":"No"}</button>`).join("")}</span></div>
     </div>
   </section>
-  <section class="card">
+  <section class="card tone-sky">
     <h2>Sign-off</h2>
     <div class="fields">${fld("Completed by / date","ev.completed")}${fld("Chef sign-off / order placed","ev.signoff")}</div>
   </section>
@@ -309,7 +357,7 @@ function combinedView(){
   const {evs,cs,diets,guests,total}=combinedData();
   const sumRow=f=>cs.map(c=>`<td class="out">${nz(f(c))}</td>`).join("")+`<td class="out grand">${nz(cs.reduce((a,c)=>a+f(c),0))}</td>`;
   return `
-  <section class="card">
+  <section class="card tone-sky">
     <h2>Events in this order</h2>
     <div class="chips">${all.map(e=>`<label class="pick"><input type="checkbox" data-inc="${e.id}" ${excluded.has(e.id)?"":"checked"}> <span><b>${esc(evName(e))}</b> ${esc(shortDate(e.ev?.date)||"")}</span></label>`).join("")}</div>
   </section>
@@ -318,7 +366,7 @@ function combinedView(){
     <div class="cell"><label>Guests</label><span class="big">${fmt(guests)||0}</span></div>
     <div class="cell total"><label>Total to prep</label><output>${fmt(total)||0}</output></div>
   </section>
-  ${evs.length?`<section class="card">
+  ${evs.length?`<section class="card tone-green">
     <h2>Canapés to prep, by event</h2>
     <div class="tbl"><table class="combo">
       <tr><th class="l">Canapé</th>${evs.map(e=>`<th><span class="eh">${esc(evName(e))}</span><span class="ed">${esc(shortDate(e.ev?.date))}</span></th>`).join("")}<th>Total</th></tr>
@@ -327,7 +375,7 @@ function combinedView(){
       <tr><td class="muted">Guests</td>${sumRow(c=>c.G)}</tr>
     </table></div>
   </section>
-  <section class="card">
+  <section class="card tone-berry">
     <h2>Dietary guests, by event</h2>
     ${diets.length?`<div class="tbl"><table class="combo">
       <tr><th class="l">Requirement</th>${evs.map(e=>`<th><span class="eh">${esc(evName(e))}</span></th>`).join("")}<th>Total</th></tr>
@@ -353,7 +401,7 @@ function refresh(){
   out("t-std",c.tot.std);out("t-diet",c.tot.diet);out("t-buf",c.tot.buf);out("t-total",c.tot.total);
   DIETS.forEach(([k])=>ph(`diet.${k}.qty`,c.diet[k].qCalc));
   out("d-n",c.dn);out("d-q",c.dq);
-  document.getElementById("bigTotal").textContent=fmt(c.tot.total)||"0";
+  {const bt=document.getElementById("bigTotal"),nv=fmt(c.tot.total)||"0";if(bt.textContent!==nv){const was=bt.textContent;bt.textContent=nv;if(was&&was!=="0"||nv!=="0"){bt.classList.remove("bump");void bt.offsetWidth;bt.classList.add("bump")}}}
   const P=num(E.ev?.ppg),sum=CANAPES.reduce((a,[k])=>a+(num(E.can?.[k]?.pcs)||0),0),el=document.getElementById("ppgCheck");
   const bad=P&&sum&&Math.abs(P-sum)>0.01; el.hidden=!bad; if(bad)el.textContent=`Pieces per guest across the canapés add up to ${fmt(sum)}, but the event is set to ${fmt(P)}.`;
 }
@@ -381,8 +429,8 @@ document.addEventListener("click",ev=>{
   if(t.id==="dupEv"){dupEvent();return}
   if(t.id==="delEv"){const e=E;dialog(`<h3>Delete “${esc(evName(e))}”?</h3><p>This removes the event and its quantities for good.</p>`,[{t:"Cancel"},{t:"Delete event",cls:"danger",fn:()=>removeEvent(e.id)}]);return}
   if(!E)return;
-  if(t.dataset.hc){const p=`can.${t.dataset.hc}.hc`,c=get(p)||"",nx=c===""?"Hot":c==="Hot"?"Cold":"";set(p,nx);t.dataset.v=nx;t.textContent=nx||"Hot / cold";markDirty(E.id)}
-  else if(t.dataset.add){set(`diet.${t.dataset.add}.on`,true);render();markDirty(E.id);document.getElementById(id(`diet.${t.dataset.add}.n`))?.focus()}
+  if(t.dataset.hc){const p=`can.${t.dataset.hc}.hc`,c=get(p)||"",nx=c===""?"Hot":c==="Hot"?"Cold":"";set(p,nx);t.dataset.v=nx;t.textContent=nx||"Hot / cold";t.classList.remove("pop");void t.offsetWidth;t.classList.add("pop");markDirty(E.id)}
+  else if(t.dataset.add){set(`diet.${t.dataset.add}.on`,true);render();document.getElementById(id(`diet.${t.dataset.add}.n`))?.closest("tr")?.classList.add("new");markDirty(E.id);document.getElementById(id(`diet.${t.dataset.add}.n`))?.focus()}
   else if(t.dataset.rm){if(E.diet)delete E.diet[t.dataset.rm];render();markDirty(E.id)}
   else if(t.dataset.seg){const p=`ev.${t.dataset.seg}`,v=get(p)===t.dataset.v?"":t.dataset.v;set(p,v);
     t.parentElement.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===v)));markDirty(E.id)}
@@ -457,7 +505,7 @@ function dialog(html,buttons){const L=document.getElementById("layer");
   L.querySelector(".dialog .row button:last-child").focus();}
 
 /* ---------- printing ---------- */
-const LOGO=`<svg class="plogo" viewBox="0 0 48 48" fill="none" stroke="#00875a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="22.5" stroke-width="1.5"/><path d="M16 30.5c-4.6-.4-6.4-6.6-2.6-9.2.2-5.6 6.4-8.3 10.6-5.2 4.2-3.1 10.4-.4 10.6 5.2 3.8 2.6 2 8.8-2.6 9.2"/><path d="M16 30.5h16v4.5H16z"/><path d="M21 24.5v6M27 24.5v6" stroke-width="1.5"/></svg>`;
+const LOGO=`<svg class="plogo" viewBox="0 0 48 48" fill="none" stroke="#00a36c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="22.5" stroke-width="1.5"/><path d="M16 30.5c-4.6-.4-6.4-6.6-2.6-9.2.2-5.6 6.4-8.3 10.6-5.2 4.2-3.1 10.4-.4 10.6 5.2 3.8 2.6 2 8.8-2.6 9.2"/><path d="M16 30.5h16v4.5H16z"/><path d="M21 24.5v6M27 24.5v6" stroke-width="1.5"/></svg>`;
 const v=x=>esc(x??"");
 const pf=(l,x)=>`<div><div class="pl">${l}</div><div class="pv">${v(x)||"&nbsp;"}</div></div>`;
 const yn=x=>x==="yes"?"Yes":x==="no"?"No":"☐ Yes ☐ No";
