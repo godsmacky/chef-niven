@@ -157,7 +157,7 @@ td.muted{color:var(--muted)}
 #printArea .ev{font:600 15pt Georgia,serif;margin:12px 0 6px;border-bottom:1px solid #ccc;padding-bottom:3px;min-height:26px}
 #printArea .g2,#printArea .g3{display:grid;gap:6px 18px}#printArea .g3{grid-template-columns:repeat(3,1fr)}#printArea .g2{grid-template-columns:1fr 1fr;margin-top:14px}
 #printArea .pl{font-size:7pt;color:#6b7772}#printArea .pv{border-bottom:1px solid #ccc;min-height:16px;padding:1px 0}
-#printArea .nums{display:grid;border:1px solid #ccc;border-radius:6px;margin:12px 0 4px}#printArea .n4{grid-template-columns:repeat(4,1fr)}#printArea .n3{grid-template-columns:repeat(3,1fr)}
+#printArea .nums{display:grid;border:1px solid #ccc;border-radius:6px;margin:12px 0 4px}#printArea .n4{grid-template-columns:repeat(4,1fr)}#printArea .n5{grid-template-columns:repeat(5,1fr)}#printArea .n3{grid-template-columns:repeat(3,1fr)}
 #printArea .nums div{padding:6px 10px}#printArea .nums div+div{border-left:1px solid #ccc}#printArea .nums span{display:block;font-size:7pt;color:#6b7772}#printArea .nums b{font-size:13pt}#printArea .nums .tt{background:#ffe3a3}#printArea .nums .tt b{color:#3a2600}
 #printArea h4{font-size:7.5pt;letter-spacing:.14em;text-transform:uppercase;color:#6b7772;margin:14px 0 4px}
 #printArea table{width:100%;border-collapse:collapse}#printArea th{font-size:7pt;font-weight:400;color:#6b7772;text-align:right;padding:3px 5px;border-bottom:1px solid #999;vertical-align:bottom;background:none;white-space:normal}#printArea th.l{text-align:left}
@@ -235,6 +235,8 @@ input.itemname{font-weight:500;min-width:9em}
 .toast{display:flex;gap:14px;align-items:center}
 .toast .undo{font:600 .85rem var(--body);background:transparent;border:0;color:var(--sun);cursor:pointer;padding:0}
 .strip.four{grid-template-columns:1fr 1fr 1fr 1.3fr}
+.strip.five{grid-template-columns:repeat(4,1fr) 1.3fr}
+@media (max-width:680px){.strip.five{grid-template-columns:1fr 1fr}}
 @media (max-width:680px){.strip.four{grid-template-columns:1fr 1fr}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
@@ -256,7 +258,7 @@ input.itemname{font-weight:500;min-width:9em}
 </header>
 <main><div class="wrap"><nav class="evbar" id="evbar" aria-label="Events"></nav><div id="view" style="display:flex;flex-direction:column;gap:16px"></div>
 <div class="devnote"><span>Events are saved in this browser on this device. Back up to keep a copy or move them to another device. <span id="backupNote"></span></span><span class="btns"><button class="btn" id="backupBtn" type="button">Back up</button><button class="btn" id="restoreBtn" type="button">Restore</button><input type="file" id="restoreFile" accept=".json,application/json" hidden></span></div></div></main>
-<footer class="sitefoot"><span>Chef Niven · Canapé orders</span><span>Quantities = guests × pieces per guest, plus extras</span></footer>
+<footer class="sitefoot"><span>Chef Niven · Event orders</span><span>Canapés = guests × pieces per guest</span></footer>
 <div id="printArea"></div>
 <div id="layer"></div>
 
@@ -289,11 +291,12 @@ function calc(e=E){
   const tot={total:0};
   const can=(e.canapes||[]).map(r=>{const own=num(r.pcs),pcs=own??P,t=pcs!=null&&G?Math.ceil(G*pcs):0;tot.total+=t;return {name:r.name||"",pcs,total:t}});
   // Main courses: portions typed in; with only one main it defaults to the guest count.
-  const ms=e.mains||[];let mainTotal=0;
-  const mains=ms.map(m=>{const auto=ms.length===1&&G?G:null,p=num(m.portions)??auto??0;mainTotal+=p;return {name:m.name||"",auto,portions:p}});
+  const course=list=>{const ms=e[list]||[];let total=0;
+    const rows=ms.map(m=>{const auto=ms.length===1&&G?G:null,p=num(m.portions)??auto??0;total+=p;return {name:m.name||"",auto,portions:p}});return {rows,total}};
+  const mc=course("mains"),dc=course("desserts"),mains=mc.rows,mainTotal=mc.total,desserts=dc.rows,dessertTotal=dc.total;
   const diet={};let dn=0,dq=0;
   DIETS.forEach(([k])=>{const r=(e.diet||{})[k]||{},n=num(r.n)||0,qCalc=n&&P?Math.ceil(n*P):null,q=num(r.qty)??qCalc??0;diet[k]={n,qCalc,q};if(activeIn(e,k)){dn+=n;dq+=q}});
-  return {G,can,tot,mains,mainTotal,diet,dn,dq};
+  return {G,can,tot,mains,mainTotal,desserts,dessertTotal,diet,dn,dq};
 }
 
 /* ---------- event bar ---------- */
@@ -311,7 +314,7 @@ const fld=(label,p,o={})=>`<div class="field ${o.cls||""}"><label for="${id(p)}"
 const cell=(label,p,ph)=>`<div class="cell"><label for="${id(p)}">${label}</label>${inp(p,{num:1,label,ph})}</div>`;
 function eventView(){
   const dActive=DIETS.filter(([k])=>active(k)), dIdle=DIETS.filter(([k])=>!active(k)), e=E.ev||{};
-  const cs=E.canapes||[], ms=E.mains||[];
+  const cs=E.canapes||[];
   return `
   <section class="card">
     <div class="fields" style="grid-template-columns:1fr">${fld("Event","ev.name",{cls:"event-name",ph:"Event name"})}</div>
@@ -340,21 +343,8 @@ function eventView(){
     <p class="hint" style="margin-top:12px">Each canapé = guests × pieces per guest. To change one canapé, type its own pieces per guest; type 0 to leave it out.</p>
     <p class="warnline" id="ppgCheck" hidden></p>
   </section>
-  <section class="card">
-    <h2>Main courses <span class="count">${ms.length}</span></h2>
-    ${ms.length?`<div class="tbl"><table>
-      <tr><th class="l">Main course</th><th>Portions</th><th class="l">Allergens &amp; notes</th><th></th></tr>
-      ${ms.map((m,i)=>`<tr>
-        <td class="name">${inp(`mains.${i}.name`,{cls:"itemname",label:"Main course name",ph:"Main course name"})}</td>
-        <td style="width:100px">${inp(`mains.${i}.portions`,{num:1,label:(m.name||"Main course")+" portions"})}</td>
-        <td style="min-width:170px">${inp(`mains.${i}.notes`,{label:(m.name||"Main course")+" allergens and notes",ph:"—"})}</td>
-        <td style="width:36px"><button class="x" type="button" data-rmitem="mains:${i}" aria-label="Remove ${esc(m.name||"main course")}">−</button></td></tr>`).join("")}
-      <tr class="sum"><td>Total portions</td><td class="out" data-out="m-total"></td><td></td><td></td></tr>
-    </table></div>
-    <p class="hint" style="margin-top:12px">With one main course, portions default to the number of guests. With several, type how many of each.</p>
-    <p class="warnline" id="mainCheck" hidden></p>`:`<p class="empty">No main courses. Add one if this event includes a meal.</p>`}
-    <div class="addrow"><button class="btn add" type="button" data-additem="mains">+ Add main course</button></div>
-  </section>
+  ${courseSection("mains")}
+  ${courseSection("desserts")}
   <section class="card">
     <h2>Dietary requirements</h2>
     ${dActive.length?`<div class="tbl" style="margin-bottom:16px"><table>
@@ -383,6 +373,27 @@ function eventView(){
   <div class="foot-actions"><button class="btn ghost" type="button" id="dupEv">Duplicate event</button><button class="btn ghost danger-text" type="button" id="delEv">Delete event</button></div>`;
 }
 
+const COURSES={mains:{one:"Main course",many:"Main courses",empty:"No main courses. Add one if this event includes a meal."},
+  desserts:{one:"Dessert",many:"Desserts",empty:"No desserts. Add one if this event includes dessert."}};
+function courseSection(list){
+  const C=COURSES[list],ms=E[list]||[],lc=C.one.toLowerCase();
+  return `<section class="card">
+    <h2>${C.many} <span class="count">${ms.length}</span></h2>
+    ${ms.length?`<div class="tbl"><table>
+      <tr><th class="l">${C.one}</th><th>Portions</th><th class="l">Allergens &amp; notes</th><th></th></tr>
+      ${ms.map((m,i)=>`<tr>
+        <td class="name">${inp(`${list}.${i}.name`,{cls:"itemname",label:C.one+" name",ph:C.one+" name"})}</td>
+        <td style="width:100px">${inp(`${list}.${i}.portions`,{num:1,label:(m.name||C.one)+" portions"})}</td>
+        <td style="min-width:170px">${inp(`${list}.${i}.notes`,{label:(m.name||C.one)+" allergens and notes",ph:"—"})}</td>
+        <td style="width:36px"><button class="x" type="button" data-rmitem="${list}:${i}" aria-label="Remove ${esc(m.name||lc)}">−</button></td></tr>`).join("")}
+      <tr class="sum"><td>Total portions</td><td class="out" data-out="${list}-total"></td><td></td><td></td></tr>
+    </table></div>
+    <p class="hint" style="margin-top:12px">With one ${lc}, portions default to the number of guests. With several, type how many of each.</p>
+    <p class="warnline" id="${list}Check" hidden></p>`:`<p class="empty">${C.empty}</p>`}
+    <div class="addrow"><button class="btn add" type="button" data-additem="${list}">+ Add ${lc}</button></div>
+  </section>`;
+}
+
 /* ---------- combined view ---------- */
 // Dishes are matched across events by name, so "Beef Tart" in two events adds up.
 function unionRows(evs,cs,listKey,valKey){
@@ -393,12 +404,12 @@ function unionRows(evs,cs,listKey,valKey){
 function combinedData(){
   const evs=sorted().filter(e=>!excluded.has(e.id)), cs=evs.map(e=>calc(e));
   const diets=DIETS.filter(([k])=>evs.some(e=>activeIn(e,k)));
-  return {evs,cs,diets,canRows:unionRows(evs,cs,"can","total"),mainRows:unionRows(evs,cs,"mains","portions"),
+  return {evs,cs,diets,canRows:unionRows(evs,cs,"can","total"),mainRows:unionRows(evs,cs,"mains","portions"),dessertRows:unionRows(evs,cs,"desserts","portions"),dessertTotal:cs.reduce((a,c)=>a+c.dessertTotal,0),
     guests:cs.reduce((a,c)=>a+c.G,0),total:cs.reduce((a,c)=>a+c.tot.total,0),mainTotal:cs.reduce((a,c)=>a+c.mainTotal,0)};
 }
 function combinedView(){
   const all=sorted(); if(!all.length)return `<section class="card"><p class="empty">No events yet. Add one with “+ New event”.</p></section>`;
-  const {evs,cs,diets,canRows,mainRows,guests,total,mainTotal}=combinedData();
+  const {evs,cs,diets,canRows,mainRows,dessertRows,guests,total,mainTotal,dessertTotal}=combinedData();
   const sumRow=f=>cs.map(c=>`<td class="out">${nz(f(c))}</td>`).join("")+`<td class="out grand">${nz(cs.reduce((a,c)=>a+f(c),0))}</td>`;
   const valRow=r=>r.vals.map(x=>`<td class="out">${nz(x)}</td>`).join("")+`<td class="out grand">${nz(r.vals.reduce((a,b)=>a+b,0))}</td>`;
   const head=evs.map(e=>`<th><span class="eh">${esc(evName(e))}</span><span class="ed">${esc(shortDate(e.ev?.date))}</span></th>`).join("");
@@ -407,10 +418,11 @@ function combinedView(){
     <h2>Events in this order</h2>
     <div class="chips">${all.map(e=>`<label class="pick"><input type="checkbox" data-inc="${e.id}" ${excluded.has(e.id)?"":"checked"}> <span><b>${esc(evName(e))}</b> ${esc(shortDate(e.ev?.date)||"")}</span></label>`).join("")}</div>
   </section>
-  <section class="strip ${mainTotal?"four":"three"}" aria-label="Combined numbers">
+  <section class="strip ${["three","four","five"][(mainTotal?1:0)+(dessertTotal?1:0)]}" aria-label="Combined numbers">
     <div class="cell"><label>Events</label><span class="big">${evs.length}</span></div>
     <div class="cell"><label>Guests</label><span class="big">${fmt(guests)||0}</span></div>
     ${mainTotal?`<div class="cell"><label>Main portions</label><span class="big">${fmt(mainTotal)}</span></div>`:""}
+    ${dessertTotal?`<div class="cell"><label>Dessert portions</label><span class="big">${fmt(dessertTotal)}</span></div>`:""}
     <div class="cell total"><label>Canapés to prep</label><output>${fmt(total)||0}</output></div>
   </section>
   ${evs.length?`<section class="card">
@@ -428,6 +440,14 @@ function combinedView(){
       <tr><th class="l">Main course</th>${head}<th>Total</th></tr>
       ${mainRows.map(r=>`<tr><td class="name">${esc(r.name)}</td>${valRow(r)}</tr>`).join("")}
       <tr class="sum"><td>Total portions</td>${sumRow(c=>c.mainTotal)}</tr>
+    </table></div>
+  </section>`:""}
+  ${dessertRows.length?`<section class="card">
+    <h2>Desserts, by event</h2>
+    <div class="tbl"><table class="combo">
+      <tr><th class="l">Dessert</th>${head}<th>Total</th></tr>
+      ${dessertRows.map(r=>`<tr><td class="name">${esc(r.name)}</td>${valRow(r)}</tr>`).join("")}
+      <tr class="sum"><td>Total portions</td>${sumRow(c=>c.dessertTotal)}</tr>
     </table></div>
   </section>`:""}
   <section class="card">
@@ -454,16 +474,16 @@ function refresh(){
   const c=calc();
   c.can.forEach((r,i)=>out("tot-"+i,r.total));
   out("t-total",c.tot.total);
-  c.mains.forEach((m,i)=>ph(`mains.${i}.portions`,m.auto));
-  out("m-total",c.mainTotal);
+  [["mains",c.mains,c.mainTotal],["desserts",c.desserts,c.dessertTotal]].forEach(([list,rows,total])=>{
+    rows.forEach((m,i)=>ph(`${list}.${i}.portions`,m.auto));out(`${list}-total`,total);
+    const w=document.getElementById(list+"Check");
+    if(w){const msg=c.G&&rows.length>1&&total&&total!==c.G?`${COURSES[list].one} portions add up to ${fmt(total)} for ${fmt(c.G)} guests.`:"";w.hidden=!msg;w.textContent=msg}});
   DIETS.forEach(([k])=>ph(`diet.${k}.qty`,c.diet[k].qCalc));
   out("d-n",c.dn);out("d-q",c.dq);
   {const bt=document.getElementById("bigTotal"),nv=fmt(c.tot.total)||"0";if(bt.textContent!==nv){const was=bt.textContent;bt.textContent=nv;if(was&&was!=="0"||nv!=="0"){bt.classList.remove("bump");void bt.offsetWidth;bt.classList.add("bump")}}}
   const el=document.getElementById("ppgCheck");
   if(el){const msg=c.G&&num(E.ev?.ppg)==null&&!c.tot.total&&c.can.length?"Enter pieces per guest above to work out the quantities.":"";el.hidden=!msg;el.textContent=msg}
   const P=num(E.ev?.ppg);c.can.forEach((r,i)=>ph(`canapes.${i}.pcs`,P));
-  const mc=document.getElementById("mainCheck");
-  if(mc){const msg=c.G&&c.mains.length>1&&c.mainTotal&&c.mainTotal!==c.G?`Main course portions add up to ${fmt(c.mainTotal)} for ${fmt(c.G)} guests.`:"";mc.hidden=!msg;mc.textContent=msg}
 }
 function go(to){cur=to;saveUI();render();window.scrollTo({top:0})}
 
@@ -473,8 +493,8 @@ const defaultCanapes=()=>CANAPES.map(([,n])=>({id:itemId(),name:n}));
 function blankFrom(src){
   const ev=src?.ev||{};
   const canapes=src?.canapes?src.canapes.map(r=>({id:itemId(),name:r.name,hc:r.hc,pcs:r.pcs,notes:r.notes})):defaultCanapes();
-  const mains=(src?.mains||[]).map(m=>({id:itemId(),name:m.name,notes:m.notes}));
-  return {id:newId(),created:new Date().toISOString(),ev:{ppg:ev.ppg},canapes,mains,diet:{}};
+  const copy=list=>(src?.[list]||[]).map(m=>({id:itemId(),name:m.name,notes:m.notes}));
+  return {id:newId(),created:new Date().toISOString(),ev:{ppg:ev.ppg},canapes,mains:copy("mains"),desserts:copy("desserts"),diet:{}};
 }
 function addEvent(){const last=Object.values(EV).sort((a,b)=>(b.updatedAt||"").localeCompare(a.updatedAt||""))[0];
   const e=blankFrom(last);EV[e.id]=e;markDirty(e.id);go(e.id);setTimeout(()=>document.getElementById(id("ev.name"))?.focus(),0)}
@@ -498,7 +518,7 @@ document.addEventListener("click",ev=>{
   else if(t.dataset.additem){const list=t.dataset.additem;(E[list]||(E[list]=[])).push({id:itemId(),name:""});markDirty(E.id);render();
     const inputs=document.querySelectorAll(`input[data-k^="${list}."][data-k$=".name"]`);inputs[inputs.length-1]?.focus()}
   else if(t.dataset.rmitem){const [list,i]=t.dataset.rmitem.split(":");const item=E[list].splice(+i,1)[0];lastRemoved={eid:E.id,list,i:+i,item};markDirty(E.id);render();
-    toast(`Removed ${item.name||(list==="mains"?"main course":"canapé")}`,"Undo")}
+    toast(`Removed ${item.name||(COURSES[list]?.one.toLowerCase()||"canapé")}`,"Undo")}
   else if(t.dataset.add){set(`diet.${t.dataset.add}.on`,true);render();markDirty(E.id);document.getElementById(id(`diet.${t.dataset.add}.n`))?.focus()}
   else if(t.dataset.rm){if(E.diet)delete E.diet[t.dataset.rm];render();markDirty(E.id)}
   else if(t.dataset.seg){const p=`ev.${t.dataset.seg}`,v=get(p)===t.dataset.v?"":t.dataset.v;set(p,v);
@@ -525,6 +545,7 @@ function migrate(e){
     delete e.can;
   }
   if(!Array.isArray(e.mains))e.mains=[];
+  if(!Array.isArray(e.desserts))e.desserts=[];
   return e;
 }
 function boot(){
@@ -593,9 +614,9 @@ function printEvent(ev){
   <h4>Canapés</h4>${c.can.length?`<table><tr><th class="l">Canapé</th><th class="l">H/C</th><th>Pcs/guest</th><th>To prep</th><th class="l">Allergens &amp; notes</th></tr>
   ${c.can.map((r,i)=>{const x=ev.canapes[i]||{};return `<tr><td class="nm">${v(r.name)}</td><td>${v(x.hc)}</td><td class="n">${r.pcs!=null?fmt(r.pcs):""}</td><td class="n b">${nz(r.total)}</td><td>${v(x.notes)}</td></tr>`}).join("")}
   <tr class="t"><td>Total pieces</td><td></td><td></td><td class="n">${nz(c.tot.total)}</td><td></td></tr></table>`:`<p class="none">None for this event.</p>`}
-  ${c.mains.length?`<h4>Main courses</h4><table><tr><th class="l">Main course</th><th>Portions</th><th class="l">Allergens &amp; notes</th></tr>
-  ${c.mains.map((m,i)=>`<tr><td class="nm">${v(m.name)}</td><td class="n b">${nz(m.portions)}</td><td>${v(ev.mains[i]?.notes)}</td></tr>`).join("")}
-  <tr class="t"><td>Total portions</td><td class="n">${nz(c.mainTotal)}</td><td></td></tr></table>`:""}
+  ${[["mains",c.mains,c.mainTotal],["desserts",c.desserts,c.dessertTotal]].map(([list,rows,total])=>rows.length?`<h4>${COURSES[list].many}</h4><table><tr><th class="l">${COURSES[list].one}</th><th>Portions</th><th class="l">Allergens &amp; notes</th></tr>
+  ${rows.map((m,i)=>`<tr><td class="nm">${v(m.name)}</td><td class="n b">${nz(m.portions)}</td><td>${v(ev[list][i]?.notes)}</td></tr>`).join("")}
+  <tr class="t"><td>Total portions</td><td class="n">${nz(total)}</td><td></td></tr></table>`:"").join("")}
   <h4>Dietary requirements</h4>${dA.length?`<table><tr><th class="l">Requirement</th><th>Guests</th><th class="l">Replaces</th><th class="l">Alternative</th><th>Alt. qty</th><th class="l">Names / table</th></tr>
   ${dA.map(([k,a])=>{const x=ev.diet?.[k]||{};return `<tr><td class="nm">${a}</td><td class="n">${v(x.n)}</td><td>${v(x.rep)}</td><td>${v(x.alt)}</td><td class="n">${nz(c.diet[k].q)}</td><td>${v(x.notes)}</td></tr>`}).join("")}
   <tr class="t"><td>Total</td><td class="n">${nz(c.dn)}</td><td></td><td></td><td class="n">${nz(c.dq)}</td><td></td></tr></table>`:`<p class="none">None for this event.</p>`}
@@ -603,21 +624,24 @@ function printEvent(ev){
   <div class="g2">${pf("Completed by / date",e.completed)}${pf("Chef sign-off / order placed",e.signoff)}</div>`;
 }
 function printCombined(){
-  const {evs,cs,diets,canRows,mainRows,guests,total,mainTotal}=combinedData();
+  const {evs,cs,diets,canRows,mainRows,dessertRows,guests,total,mainTotal,dessertTotal}=combinedData();
   const vrow=r=>r.vals.map(x=>`<td class="n">${nz(x)}</td>`).join("")+`<td class="n b">${nz(r.vals.reduce((a,b)=>a+b,0))}</td>`;
   const ds=evs.map(e=>e.ev?.date).filter(Boolean).sort(),range=ds.length?(ds[0]===ds.at(-1)?niceDate(ds[0]):`${shortDate(ds[0])} – ${shortDate(ds.at(-1))}`):"";
   const row=f=>cs.map(c=>`<td class="n">${nz(f(c))}</td>`).join("")+`<td class="n b">${nz(cs.reduce((a,c)=>a+f(c),0))}</td>`;
   const hd=evs.map(e=>`<th><div class="eh">${v(evName(e))}</div><div class="ed">${v(shortDate(e.ev?.date))}${e.ev?.service?" · "+v(e.ev.service):""}</div></th>`).join("");
   return `${phead("Combined order",v(range))}
-  <div class="nums ${mainTotal?"n4":"n3"}"><div><span>Events</span><b>${evs.length}</b></div><div><span>Guests</span><b>${fmt(guests)||"—"}</b></div>${mainTotal?`<div><span>Main portions</span><b>${fmt(mainTotal)}</b></div>`:""}<div class="tt"><span>Canapés to prep</span><b>${fmt(total)||"—"}</b></div></div>
-  <h4>Events</h4><table><tr><th class="l">Event</th><th class="l">Date</th><th class="l">Service</th><th class="l">Venue</th><th>Guests</th><th>Canapés</th>${mainTotal?"<th>Mains</th>":""}</tr>
-  ${evs.map((e,i)=>`<tr><td class="nm">${v(evName(e))}</td><td>${v(shortDate(e.ev?.date))}</td><td>${v(e.ev?.service)}</td><td>${v(e.ev?.venue)}</td><td class="n">${v(e.ev?.guests)}</td><td class="n b">${nz(cs[i].tot.total)}</td>${mainTotal?`<td class="n b">${nz(cs[i].mainTotal)}</td>`:""}</tr>`).join("")}</table>
+  <div class="nums ${["n3","n4","n5"][(mainTotal?1:0)+(dessertTotal?1:0)]}"><div><span>Events</span><b>${evs.length}</b></div><div><span>Guests</span><b>${fmt(guests)||"—"}</b></div>${mainTotal?`<div><span>Main portions</span><b>${fmt(mainTotal)}</b></div>`:""}${dessertTotal?`<div><span>Dessert portions</span><b>${fmt(dessertTotal)}</b></div>`:""}<div class="tt"><span>Canapés to prep</span><b>${fmt(total)||"—"}</b></div></div>
+  <h4>Events</h4><table><tr><th class="l">Event</th><th class="l">Date</th><th class="l">Service</th><th class="l">Venue</th><th>Guests</th><th>Canapés</th>${mainTotal?"<th>Mains</th>":""}${dessertTotal?"<th>Desserts</th>":""}</tr>
+  ${evs.map((e,i)=>`<tr><td class="nm">${v(evName(e))}</td><td>${v(shortDate(e.ev?.date))}</td><td>${v(e.ev?.service)}</td><td>${v(e.ev?.venue)}</td><td class="n">${v(e.ev?.guests)}</td><td class="n b">${nz(cs[i].tot.total)}</td>${mainTotal?`<td class="n b">${nz(cs[i].mainTotal)}</td>`:""}${dessertTotal?`<td class="n b">${nz(cs[i].dessertTotal)}</td>`:""}</tr>`).join("")}</table>
   <h4>Canapés to prep, by event</h4><table class="combo"><tr><th class="l">Canapé</th>${hd}<th>Total</th></tr>
   ${canRows.map(r=>`<tr><td class="nm">${v(r.name)}</td>${vrow(r)}</tr>`).join("")}
   <tr class="t"><td>Total pieces</td>${row(c=>c.tot.total)}</tr></table>
   ${mainRows.length?`<h4>Main courses, by event</h4><table class="combo"><tr><th class="l">Main course</th>${hd}<th>Total</th></tr>
   ${mainRows.map(r=>`<tr><td class="nm">${v(r.name)}</td>${vrow(r)}</tr>`).join("")}
   <tr class="t"><td>Total portions</td>${row(c=>c.mainTotal)}</tr></table>`:""}
+  ${dessertRows.length?`<h4>Desserts, by event</h4><table class="combo"><tr><th class="l">Dessert</th>${hd}<th>Total</th></tr>
+  ${dessertRows.map(r=>`<tr><td class="nm">${v(r.name)}</td>${vrow(r)}</tr>`).join("")}
+  <tr class="t"><td>Total portions</td>${row(c=>c.dessertTotal)}</tr></table>`:""}
   <h4>Dietary guests, by event</h4>${diets.length?`<table class="combo"><tr><th class="l">Requirement</th>${evs.map(e=>`<th><div class="eh">${v(evName(e))}</div></th>`).join("")}<th>Total</th></tr>
   ${diets.map(([k,a])=>`<tr><td class="nm">${a}</td>${row(c=>c.diet[k].n)}</tr>`).join("")}
   <tr class="t"><td>Alt. pieces</td>${row(c=>c.dq)}</tr></table>`:`<p class="none">None.</p>`}
