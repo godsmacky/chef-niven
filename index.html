@@ -224,6 +224,18 @@ td.grand,table.combo th:last-child{background:var(--green-soft);color:var(--ink)
 .toast{animation:toastIn .25s ease-out}
 @keyframes toastIn{from{transform:translate(-50%,10px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
 .sitefoot{max-width:980px;margin:0 auto;padding:8px max(16px,env(safe-area-inset-right,0px)) 32px max(16px,env(safe-area-inset-left,0px));font-size:.75rem;color:var(--faint);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.namecell{display:flex;align-items:center;gap:4px}
+input.itemname{font-weight:500;min-width:9em}
+.count{font:600 .72rem var(--body);color:var(--muted);background:var(--hover);border-radius:99px;padding:1px 8px}
+.addrow{margin-top:12px}
+.btn.add{border-style:dashed;color:var(--green);font-weight:600}
+.btn.add:hover{background:var(--green-soft);border-color:var(--green)}
+.x{font-size:1.1rem;line-height:1;width:28px;height:28px;padding:0;border:1px solid var(--line);border-radius:50%;color:var(--muted);display:inline-flex;align-items:center;justify-content:center}
+.x:hover{border-color:var(--warn);color:var(--warn);background:transparent}
+.toast{display:flex;gap:14px;align-items:center}
+.toast .undo{font:600 .85rem var(--body);background:transparent;border:0;color:var(--sun);cursor:pointer;padding:0}
+.strip.four{grid-template-columns:1fr 1fr 1fr 1.3fr}
+@media (max-width:680px){.strip.four{grid-template-columns:1fr 1fr}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 <style id="pageSize">@page{size:A4 portrait;margin:14mm}</style>
@@ -270,15 +282,18 @@ function niceDate(d){if(!d)return"";const t=new Date(d+"T12:00");return isNaN(t)
 const evName=e=>e.ev?.name||"Untitled event";
 
 /* ---------- calculations ---------- */
+const key=n=>String(n||"").trim().toLowerCase();
 function calc(e=E){
-  const G=num(e.ev?.guests)||0, B=0, P=num(e.ev?.ppg);
+  const G=num(e.ev?.guests)||0, P=num(e.ev?.ppg);
   // Each canapé: guests × its pieces per guest (its own figure, or the event's). 0 leaves it out.
-  const can={},tot={std:0,diet:0,buf:0,total:0};
-  CANAPES.forEach(([c])=>{const own=num(((e.can||{})[c]||{}).pcs),pcs=own??P,t=pcs!=null&&G?Math.ceil(G*pcs):0;
-    can[c]={auto:own==null,pcs,total:t,std:t,diet:0,buf:0};tot.std+=t;tot.total+=t});
+  const tot={total:0};
+  const can=(e.canapes||[]).map(r=>{const own=num(r.pcs),pcs=own??P,t=pcs!=null&&G?Math.ceil(G*pcs):0;tot.total+=t;return {name:r.name||"",pcs,total:t}});
+  // Main courses: portions typed in; with only one main it defaults to the guest count.
+  const ms=e.mains||[];let mainTotal=0;
+  const mains=ms.map(m=>{const auto=ms.length===1&&G?G:null,p=num(m.portions)??auto??0;mainTotal+=p;return {name:m.name||"",auto,portions:p}});
   const diet={};let dn=0,dq=0;
   DIETS.forEach(([k])=>{const r=(e.diet||{})[k]||{},n=num(r.n)||0,qCalc=n&&P?Math.ceil(n*P):null,q=num(r.qty)??qCalc??0;diet[k]={n,qCalc,q};if(activeIn(e,k)){dn+=n;dq+=q}});
-  return {G,can,tot,diet,dn,dq};
+  return {G,can,tot,mains,mainTotal,diet,dn,dq};
 }
 
 /* ---------- event bar ---------- */
@@ -291,11 +306,12 @@ function renderBar(){
 }
 
 /* ---------- event view ---------- */
-const inp=(p,o={})=>`<input id="${id(p)}" data-k="${p}" value="${esc(get(p))}" ${o.num?'class="num" inputmode="decimal"':""} ${o.ph?`placeholder="${esc(o.ph)}"`:""} ${o.type?`type="${o.type}"`:""} aria-label="${esc(o.label||p)}" autocomplete="off">`;
-const fld=(label,p,o={})=>`<div class="field ${o.cls||""}"><label for="${id(p)}">${label}</label>${inp(p,{...o,label})}</div>`;
+const inp=(p,o={})=>`<input id="${id(p)}" data-k="${p}" value="${esc(get(p))}" class="${o.num?"num":""} ${o.cls||""}" ${o.num?'inputmode="decimal"':""} ${o.ph?`placeholder="${esc(o.ph)}"`:""} ${o.type?`type="${o.type}"`:""} aria-label="${esc(o.label||p)}" autocomplete="off">`;
+const fld=(label,p,o={})=>`<div class="field ${o.cls||""}"><label for="${id(p)}">${label}</label>${inp(p,{...o,cls:"",label})}</div>`;
 const cell=(label,p,ph)=>`<div class="cell"><label for="${id(p)}">${label}</label>${inp(p,{num:1,label,ph})}</div>`;
 function eventView(){
   const dActive=DIETS.filter(([k])=>active(k)), dIdle=DIETS.filter(([k])=>!active(k)), e=E.ev||{};
+  const cs=E.canapes||[], ms=E.mains||[];
   return `
   <section class="card">
     <div class="fields" style="grid-template-columns:1fr">${fld("Event","ev.name",{cls:"event-name",ph:"Event name"})}</div>
@@ -306,21 +322,38 @@ function eventView(){
   </section>
   <section class="strip three" aria-label="Numbers">
     ${cell("Guests","ev.guests","0")}${cell("Pieces per guest","ev.ppg","0")}
-    <div class="cell total"><label>Total to prep</label><output id="bigTotal">0</output></div>
+    <div class="cell total"><label>Canapés to prep</label><output id="bigTotal">0</output></div>
   </section>
   <section class="card">
-    <h2>Canapés</h2>
-    <div class="tbl"><table>
-      <tr><th class="l">Canapé</th><th>Pcs / guest</th><th>To prep</th><th class="l">Allergens &amp; notes</th></tr>
-      ${CANAPES.map(([c,n])=>{const hc=get(`can.${c}.hc`)||"";return `<tr>
-        <td class="name">${n}<button class="hc" type="button" data-hc="${c}" data-v="${esc(hc)}" title="Tap to set hot or cold">${esc(hc)||"Hot / cold"}</button></td>
-        <td style="width:84px">${inp(`can.${c}.pcs`,{num:1,label:n+" pieces per guest",ph:"auto"})}</td>
-        <td class="out" data-out="tot-${c}" style="width:110px"></td>
-        <td style="min-width:170px">${inp(`can.${c}.notes`,{label:n+" allergens and notes",ph:"—"})}</td></tr>`}).join("")}
-      <tr class="sum"><td>Total pieces</td><td></td><td class="out" data-out="t-total"></td><td></td></tr>
-    </table></div>
+    <h2>Canapés <span class="count">${cs.length}</span></h2>
+    ${cs.length?`<div class="tbl"><table>
+      <tr><th class="l">Canapé</th><th>Pcs / guest</th><th>To prep</th><th class="l">Allergens &amp; notes</th><th></th></tr>
+      ${cs.map((r,i)=>{const hc=r.hc||"";return `<tr>
+        <td class="name"><span class="namecell">${inp(`canapes.${i}.name`,{cls:"itemname",label:"Canapé name",ph:"Canapé name"})}<button class="hc" type="button" data-hc="${i}" data-v="${esc(hc)}" title="Tap to set hot or cold">${esc(hc)||"Hot / cold"}</button></span></td>
+        <td style="width:84px">${inp(`canapes.${i}.pcs`,{num:1,label:(r.name||"Canapé")+" pieces per guest"})}</td>
+        <td class="out" data-out="tot-${i}" style="width:100px"></td>
+        <td style="min-width:150px">${inp(`canapes.${i}.notes`,{label:(r.name||"Canapé")+" allergens and notes",ph:"—"})}</td>
+        <td style="width:36px"><button class="x" type="button" data-rmitem="canapes:${i}" aria-label="Remove ${esc(r.name||"canapé")}">−</button></td></tr>`}).join("")}
+      <tr class="sum"><td>Total pieces</td><td></td><td class="out" data-out="t-total"></td><td></td><td></td></tr>
+    </table></div>`:`<p class="empty">No canapés on this event yet.</p>`}
+    <div class="addrow"><button class="btn add" type="button" data-additem="canapes">+ Add canapé</button></div>
     <p class="hint" style="margin-top:12px">Each canapé = guests × pieces per guest. To change one canapé, type its own pieces per guest; type 0 to leave it out.</p>
     <p class="warnline" id="ppgCheck" hidden></p>
+  </section>
+  <section class="card">
+    <h2>Main courses <span class="count">${ms.length}</span></h2>
+    ${ms.length?`<div class="tbl"><table>
+      <tr><th class="l">Main course</th><th>Portions</th><th class="l">Allergens &amp; notes</th><th></th></tr>
+      ${ms.map((m,i)=>`<tr>
+        <td class="name">${inp(`mains.${i}.name`,{cls:"itemname",label:"Main course name",ph:"Main course name"})}</td>
+        <td style="width:100px">${inp(`mains.${i}.portions`,{num:1,label:(m.name||"Main course")+" portions"})}</td>
+        <td style="min-width:170px">${inp(`mains.${i}.notes`,{label:(m.name||"Main course")+" allergens and notes",ph:"—"})}</td>
+        <td style="width:36px"><button class="x" type="button" data-rmitem="mains:${i}" aria-label="Remove ${esc(m.name||"main course")}">−</button></td></tr>`).join("")}
+      <tr class="sum"><td>Total portions</td><td class="out" data-out="m-total"></td><td></td><td></td></tr>
+    </table></div>
+    <p class="hint" style="margin-top:12px">With one main course, portions default to the number of guests. With several, type how many of each.</p>
+    <p class="warnline" id="mainCheck" hidden></p>`:`<p class="empty">No main courses. Add one if this event includes a meal.</p>`}
+    <div class="addrow"><button class="btn add" type="button" data-additem="mains">+ Add main course</button></div>
   </section>
   <section class="card">
     <h2>Dietary requirements</h2>
@@ -328,8 +361,8 @@ function eventView(){
       <tr><th class="l">Requirement</th><th>Guests</th><th class="l">Replaces</th><th class="l">Alternative</th><th>Alt. qty</th><th class="l">Names / table</th><th></th></tr>
       ${dActive.map(([k,a,b])=>`<tr><td class="req"><b>${a}</b>${b?`<span>${b}</span>`:""}</td>
         <td style="width:76px">${inp(`diet.${k}.n`,{num:1,label:a+" number of guests"})}</td>
-        <td style="min-width:110px">${inp(`diet.${k}.rep`,{label:a+" replaces",ph:"Canapé"})}</td>
-        <td style="min-width:130px">${inp(`diet.${k}.alt`,{label:a+" alternative canapé",ph:"Swap-in"})}</td>
+        <td style="min-width:110px">${inp(`diet.${k}.rep`,{label:a+" replaces",ph:"Dish"})}</td>
+        <td style="min-width:130px">${inp(`diet.${k}.alt`,{label:a+" alternative",ph:"Swap-in"})}</td>
         <td style="width:76px">${inp(`diet.${k}.qty`,{num:1,label:a+" alternative quantity"})}</td>
         <td style="min-width:140px">${inp(`diet.${k}.notes`,{label:a+" names and notes",ph:"—"})}</td>
         <td style="width:36px"><button class="x" type="button" data-rm="${k}" aria-label="Remove ${a}">×</button></td></tr>`).join("")}
@@ -351,34 +384,52 @@ function eventView(){
 }
 
 /* ---------- combined view ---------- */
+// Dishes are matched across events by name, so "Beef Tart" in two events adds up.
+function unionRows(evs,cs,listKey,valKey){
+  const order=[],names={};
+  cs.forEach(c=>c[listKey].forEach(r=>{const k=key(r.name);if(!k)return;if(!(k in names)){names[k]=r.name.trim();order.push(k)}}));
+  return order.map(k=>({name:names[k],vals:cs.map(c=>c[listKey].filter(r=>key(r.name)===k).reduce((a,r)=>a+r[valKey],0))}));
+}
 function combinedData(){
   const evs=sorted().filter(e=>!excluded.has(e.id)), cs=evs.map(e=>calc(e));
   const diets=DIETS.filter(([k])=>evs.some(e=>activeIn(e,k)));
-  return {evs,cs,diets,guests:cs.reduce((a,c)=>a+c.G,0),total:cs.reduce((a,c)=>a+c.tot.total,0)};
+  return {evs,cs,diets,canRows:unionRows(evs,cs,"can","total"),mainRows:unionRows(evs,cs,"mains","portions"),
+    guests:cs.reduce((a,c)=>a+c.G,0),total:cs.reduce((a,c)=>a+c.tot.total,0),mainTotal:cs.reduce((a,c)=>a+c.mainTotal,0)};
 }
 function combinedView(){
   const all=sorted(); if(!all.length)return `<section class="card"><p class="empty">No events yet. Add one with “+ New event”.</p></section>`;
-  const {evs,cs,diets,guests,total}=combinedData();
+  const {evs,cs,diets,canRows,mainRows,guests,total,mainTotal}=combinedData();
   const sumRow=f=>cs.map(c=>`<td class="out">${nz(f(c))}</td>`).join("")+`<td class="out grand">${nz(cs.reduce((a,c)=>a+f(c),0))}</td>`;
+  const valRow=r=>r.vals.map(x=>`<td class="out">${nz(x)}</td>`).join("")+`<td class="out grand">${nz(r.vals.reduce((a,b)=>a+b,0))}</td>`;
+  const head=evs.map(e=>`<th><span class="eh">${esc(evName(e))}</span><span class="ed">${esc(shortDate(e.ev?.date))}</span></th>`).join("");
   return `
   <section class="card">
     <h2>Events in this order</h2>
     <div class="chips">${all.map(e=>`<label class="pick"><input type="checkbox" data-inc="${e.id}" ${excluded.has(e.id)?"":"checked"}> <span><b>${esc(evName(e))}</b> ${esc(shortDate(e.ev?.date)||"")}</span></label>`).join("")}</div>
   </section>
-  <section class="strip three" aria-label="Combined numbers">
+  <section class="strip ${mainTotal?"four":"three"}" aria-label="Combined numbers">
     <div class="cell"><label>Events</label><span class="big">${evs.length}</span></div>
     <div class="cell"><label>Guests</label><span class="big">${fmt(guests)||0}</span></div>
-    <div class="cell total"><label>Total to prep</label><output>${fmt(total)||0}</output></div>
+    ${mainTotal?`<div class="cell"><label>Main portions</label><span class="big">${fmt(mainTotal)}</span></div>`:""}
+    <div class="cell total"><label>Canapés to prep</label><output>${fmt(total)||0}</output></div>
   </section>
   ${evs.length?`<section class="card">
     <h2>Canapés to prep, by event</h2>
-    <div class="tbl"><table class="combo">
-      <tr><th class="l">Canapé</th>${evs.map(e=>`<th><span class="eh">${esc(evName(e))}</span><span class="ed">${esc(shortDate(e.ev?.date))}</span></th>`).join("")}<th>Total</th></tr>
-      ${CANAPES.map(([k,n])=>`<tr><td class="name">${n}</td>${sumRow(c=>c.can[k].total)}</tr>`).join("")}
+    ${canRows.length?`<div class="tbl"><table class="combo">
+      <tr><th class="l">Canapé</th>${head}<th>Total</th></tr>
+      ${canRows.map(r=>`<tr><td class="name">${esc(r.name)}</td>${valRow(r)}</tr>`).join("")}
       <tr class="sum"><td>Total pieces</td>${sumRow(c=>c.tot.total)}</tr>
       <tr><td class="muted">Guests</td>${sumRow(c=>c.G)}</tr>
-    </table></div>
+    </table></div>`:`<p class="empty">No canapés in these events.</p>`}
   </section>
+  ${mainRows.length?`<section class="card">
+    <h2>Main courses, by event</h2>
+    <div class="tbl"><table class="combo">
+      <tr><th class="l">Main course</th>${head}<th>Total</th></tr>
+      ${mainRows.map(r=>`<tr><td class="name">${esc(r.name)}</td>${valRow(r)}</tr>`).join("")}
+      <tr class="sum"><td>Total portions</td>${sumRow(c=>c.mainTotal)}</tr>
+    </table></div>
+  </section>`:""}
   <section class="card">
     <h2>Dietary guests, by event</h2>
     ${diets.length?`<div class="tbl"><table class="combo">
@@ -401,22 +452,29 @@ const out=(k,v)=>{const el=document.querySelector(`[data-out="${k}"]`);if(el)el.
 const ph=(p,v)=>{const el=document.getElementById(id(p));if(el)el.placeholder=v!=null?fmt(v):""};
 function refresh(){
   const c=calc();
-  CANAPES.forEach(([k])=>out("tot-"+k,c.can[k].total));
+  c.can.forEach((r,i)=>out("tot-"+i,r.total));
   out("t-total",c.tot.total);
+  c.mains.forEach((m,i)=>ph(`mains.${i}.portions`,m.auto));
+  out("m-total",c.mainTotal);
   DIETS.forEach(([k])=>ph(`diet.${k}.qty`,c.diet[k].qCalc));
   out("d-n",c.dn);out("d-q",c.dq);
   {const bt=document.getElementById("bigTotal"),nv=fmt(c.tot.total)||"0";if(bt.textContent!==nv){const was=bt.textContent;bt.textContent=nv;if(was&&was!=="0"||nv!=="0"){bt.classList.remove("bump");void bt.offsetWidth;bt.classList.add("bump")}}}
-  const el=document.getElementById("ppgCheck"),msg=c.G&&num(E.ev?.ppg)==null&&!c.tot.total?"Enter pieces per guest above to work out the quantities.":"";
-  el.hidden=!msg;el.textContent=msg;
-  const P=num(E.ev?.ppg);CANAPES.forEach(([k])=>ph(`can.${k}.pcs`,P));
+  const el=document.getElementById("ppgCheck");
+  if(el){const msg=c.G&&num(E.ev?.ppg)==null&&!c.tot.total&&c.can.length?"Enter pieces per guest above to work out the quantities.":"";el.hidden=!msg;el.textContent=msg}
+  const P=num(E.ev?.ppg);c.can.forEach((r,i)=>ph(`canapes.${i}.pcs`,P));
+  const mc=document.getElementById("mainCheck");
+  if(mc){const msg=c.G&&c.mains.length>1&&c.mainTotal&&c.mainTotal!==c.G?`Main course portions add up to ${fmt(c.mainTotal)} for ${fmt(c.G)} guests.`:"";mc.hidden=!msg;mc.textContent=msg}
 }
 function go(to){cur=to;saveUI();render();window.scrollTo({top:0})}
 
 /* ---------- events: create / delete ---------- */
+const itemId=()=>"i"+Math.random().toString(36).slice(2,9);
+const defaultCanapes=()=>CANAPES.map(([,n])=>({id:itemId(),name:n}));
 function blankFrom(src){
-  const ev=src?.ev||{},can={};
-  CANAPES.forEach(([c])=>{const r=src?.can?.[c]||{};can[c]={hc:r.hc,pcs:r.pcs,notes:r.notes}});
-  return {id:newId(),created:new Date().toISOString(),ev:{ppg:ev.ppg},can,diet:{}};
+  const ev=src?.ev||{};
+  const canapes=src?.canapes?src.canapes.map(r=>({id:itemId(),name:r.name,hc:r.hc,pcs:r.pcs,notes:r.notes})):defaultCanapes();
+  const mains=(src?.mains||[]).map(m=>({id:itemId(),name:m.name,notes:m.notes}));
+  return {id:newId(),created:new Date().toISOString(),ev:{ppg:ev.ppg},canapes,mains,diet:{}};
 }
 function addEvent(){const last=Object.values(EV).sort((a,b)=>(b.updatedAt||"").localeCompare(a.updatedAt||""))[0];
   const e=blankFrom(last);EV[e.id]=e;markDirty(e.id);go(e.id);setTimeout(()=>document.getElementById(id("ev.name"))?.focus(),0)}
@@ -427,15 +485,21 @@ document.addEventListener("input",ev=>{const t=ev.target;
   if(t.dataset?.inc!=null){t.checked?excluded.delete(t.dataset.inc):excluded.add(t.dataset.inc);saveUI();render();return}
   const k=t.dataset?.k;if(!k||!E)return;set(k,t.value);refresh();markDirty(E.id);
   if(/^ev\.(name|date|guests)$/.test(k))renderBar();});
+let lastRemoved=null;
 document.addEventListener("click",ev=>{
   const t=ev.target.closest("button");if(!t||t.closest(".dialog"))return;
   if(t.dataset.go){go(t.dataset.go);return}
   if(t.id==="addEv"||t.id==="newBtn"){addEvent();return}
   if(t.id==="dupEv"){dupEvent();return}
   if(t.id==="delEv"){const e=E;dialog(`<h3>Delete “${esc(evName(e))}”?</h3><p>This removes the event and its quantities for good.</p>`,[{t:"Cancel"},{t:"Delete event",cls:"danger",fn:()=>removeEvent(e.id)}]);return}
+  if(t.classList.contains("undo")){if(lastRemoved&&EV[lastRemoved.eid]){const{eid,list,i,item}=lastRemoved;const arr=EV[eid][list]||(EV[eid][list]=[]);arr.splice(i,0,item);lastRemoved=null;markDirty(eid);render();t.closest(".toast")?.remove()}return}
   if(!E)return;
-  if(t.dataset.hc){const p=`can.${t.dataset.hc}.hc`,c=get(p)||"",nx=c===""?"Hot":c==="Hot"?"Cold":"";set(p,nx);t.dataset.v=nx;t.textContent=nx||"Hot / cold";t.classList.remove("pop");void t.offsetWidth;t.classList.add("pop");markDirty(E.id)}
-  else if(t.dataset.add){set(`diet.${t.dataset.add}.on`,true);render();document.getElementById(id(`diet.${t.dataset.add}.n`))?.closest("tr")?.classList.add("new");markDirty(E.id);document.getElementById(id(`diet.${t.dataset.add}.n`))?.focus()}
+  if(t.dataset.hc!=null){const p=`canapes.${t.dataset.hc}.hc`,c=get(p)||"",nx=c===""?"Hot":c==="Hot"?"Cold":"";set(p,nx);t.dataset.v=nx;t.textContent=nx||"Hot / cold";markDirty(E.id)}
+  else if(t.dataset.additem){const list=t.dataset.additem;(E[list]||(E[list]=[])).push({id:itemId(),name:""});markDirty(E.id);render();
+    const inputs=document.querySelectorAll(`input[data-k^="${list}."][data-k$=".name"]`);inputs[inputs.length-1]?.focus()}
+  else if(t.dataset.rmitem){const [list,i]=t.dataset.rmitem.split(":");const item=E[list].splice(+i,1)[0];lastRemoved={eid:E.id,list,i:+i,item};markDirty(E.id);render();
+    toast(`Removed ${item.name||(list==="mains"?"main course":"canapé")}`,"Undo")}
+  else if(t.dataset.add){set(`diet.${t.dataset.add}.on`,true);render();markDirty(E.id);document.getElementById(id(`diet.${t.dataset.add}.n`))?.focus()}
   else if(t.dataset.rm){if(E.diet)delete E.diet[t.dataset.rm];render();markDirty(E.id)}
   else if(t.dataset.seg){const p=`ev.${t.dataset.seg}`,v=get(p)===t.dataset.v?"":t.dataset.v;set(p,v);
     t.parentElement.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===v)));markDirty(E.id)}
@@ -455,7 +519,12 @@ function removeEvent(eid){
 }
 function migrate(e){
   if(e.ev&&e.ev.labelled===true)e.ev.labelled="yes";
-  CANAPES.forEach(([c])=>{const r=e.can?.[c];if(r&&r.all&&!r.notes){r.notes=r.all;delete r.all}});
+  // older events kept a fixed canapé list under "can"; turn it into an editable list
+  if(!Array.isArray(e.canapes)){
+    e.canapes=CANAPES.map(([c,n])=>{const r=e.can?.[c]||{};return {id:itemId(),name:n,hc:r.hc,pcs:r.pcs,notes:r.notes||r.all}});
+    delete e.can;
+  }
+  if(!Array.isArray(e.mains))e.mains=[];
   return e;
 }
 function boot(){
@@ -503,7 +572,7 @@ document.getElementById("restoreFile").addEventListener("change",async ev=>{
 
 
 /* ---------- dialogs ---------- */
-function toast(t){const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.append(d);setTimeout(()=>d.remove(),3200)}
+function toast(t,action){const d=document.createElement("div");d.className="toast";d.textContent=t;if(action){const b=document.createElement("button");b.type="button";b.className="undo";b.textContent=action;d.append(b)}document.body.append(d);setTimeout(()=>d.remove(),action?6000:3200)}
 function dialog(html,buttons){const L=document.getElementById("layer");
   L.innerHTML=`<div class="overlay"><div class="dialog" role="dialog" aria-modal="true">${html}<div class="row">${buttons.map((b,i)=>`<button class="btn ${b.cls||""}" data-i="${i}" type="button">${b.t}</button>`).join("")}</div></div></div>`;
   L.querySelector(".dialog .row").addEventListener("click",e=>{const i=e.target.dataset.i;if(i==null)return;L.innerHTML="";buttons[i].fn?.()});
@@ -517,13 +586,16 @@ const yn=x=>x==="yes"?"Yes":x==="no"?"No":"☐ Yes ☐ No";
 const phead=(kicker,right)=>`<div class="ph"><div class="pb">${LOGO}<div><div class="pk">CHEF</div><div class="pn">Niven</div></div></div><div class="pr"><div class="pt">${kicker}</div><div class="pd">${right}</div></div></div>`;
 function printEvent(ev){
   const e=ev.ev||{},c=calc(ev),dA=DIETS.filter(([k])=>activeIn(ev,k));
-  return `${phead("Canapé order",v(niceDate(e.date)))}
+  return `${phead("Event order",v(niceDate(e.date)))}
   <div class="ev">${v(e.name)||"&nbsp;"}</div>
   <div class="g3">${pf("Service time",e.service)}${pf("Venue / room",e.venue)}${pf("Client / contact",e.client)}</div>
-  <div class="nums n3"><div><span>Guests</span><b>${v(e.guests)||"—"}</b></div><div><span>Pieces per guest</span><b>${v(e.ppg)||"—"}</b></div><div class="tt"><span>Total to prep</span><b>${nz(c.tot.total)||"—"}</b></div></div>
-  <h4>Canapés</h4><table><tr><th class="l">Canapé</th><th class="l">H/C</th><th>Pcs/guest</th><th>To prep</th><th class="l">Allergens &amp; notes</th></tr>
-  ${CANAPES.map(([k,n])=>{const r=c.can[k],x=ev.can?.[k]||{};return `<tr><td class="nm">${n}</td><td>${v(x.hc)}</td><td class="n">${r.pcs!=null?fmt(r.pcs):""}</td><td class="n b">${nz(r.total)}</td><td>${v(x.notes)}</td></tr>`}).join("")}
-  <tr class="t"><td>Total pieces</td><td></td><td></td><td class="n">${nz(c.tot.total)}</td><td></td></tr></table>
+  <div class="nums n3"><div><span>Guests</span><b>${v(e.guests)||"—"}</b></div><div><span>Pieces per guest</span><b>${v(e.ppg)||"—"}</b></div><div class="tt"><span>Canapés to prep</span><b>${nz(c.tot.total)||"—"}</b></div></div>
+  <h4>Canapés</h4>${c.can.length?`<table><tr><th class="l">Canapé</th><th class="l">H/C</th><th>Pcs/guest</th><th>To prep</th><th class="l">Allergens &amp; notes</th></tr>
+  ${c.can.map((r,i)=>{const x=ev.canapes[i]||{};return `<tr><td class="nm">${v(r.name)}</td><td>${v(x.hc)}</td><td class="n">${r.pcs!=null?fmt(r.pcs):""}</td><td class="n b">${nz(r.total)}</td><td>${v(x.notes)}</td></tr>`}).join("")}
+  <tr class="t"><td>Total pieces</td><td></td><td></td><td class="n">${nz(c.tot.total)}</td><td></td></tr></table>`:`<p class="none">None for this event.</p>`}
+  ${c.mains.length?`<h4>Main courses</h4><table><tr><th class="l">Main course</th><th>Portions</th><th class="l">Allergens &amp; notes</th></tr>
+  ${c.mains.map((m,i)=>`<tr><td class="nm">${v(m.name)}</td><td class="n b">${nz(m.portions)}</td><td>${v(ev.mains[i]?.notes)}</td></tr>`).join("")}
+  <tr class="t"><td>Total portions</td><td class="n">${nz(c.mainTotal)}</td><td></td></tr></table>`:""}
   <h4>Dietary requirements</h4>${dA.length?`<table><tr><th class="l">Requirement</th><th>Guests</th><th class="l">Replaces</th><th class="l">Alternative</th><th>Alt. qty</th><th class="l">Names / table</th></tr>
   ${dA.map(([k,a])=>{const x=ev.diet?.[k]||{};return `<tr><td class="nm">${a}</td><td class="n">${v(x.n)}</td><td>${v(x.rep)}</td><td>${v(x.alt)}</td><td class="n">${nz(c.diet[k].q)}</td><td>${v(x.notes)}</td></tr>`}).join("")}
   <tr class="t"><td>Total</td><td class="n">${nz(c.dn)}</td><td></td><td></td><td class="n">${nz(c.dq)}</td><td></td></tr></table>`:`<p class="none">None for this event.</p>`}
@@ -531,17 +603,21 @@ function printEvent(ev){
   <div class="g2">${pf("Completed by / date",e.completed)}${pf("Chef sign-off / order placed",e.signoff)}</div>`;
 }
 function printCombined(){
-  const {evs,cs,diets,guests,total}=combinedData();
+  const {evs,cs,diets,canRows,mainRows,guests,total,mainTotal}=combinedData();
+  const vrow=r=>r.vals.map(x=>`<td class="n">${nz(x)}</td>`).join("")+`<td class="n b">${nz(r.vals.reduce((a,b)=>a+b,0))}</td>`;
   const ds=evs.map(e=>e.ev?.date).filter(Boolean).sort(),range=ds.length?(ds[0]===ds.at(-1)?niceDate(ds[0]):`${shortDate(ds[0])} – ${shortDate(ds.at(-1))}`):"";
   const row=f=>cs.map(c=>`<td class="n">${nz(f(c))}</td>`).join("")+`<td class="n b">${nz(cs.reduce((a,c)=>a+f(c),0))}</td>`;
   const hd=evs.map(e=>`<th><div class="eh">${v(evName(e))}</div><div class="ed">${v(shortDate(e.ev?.date))}${e.ev?.service?" · "+v(e.ev.service):""}</div></th>`).join("");
-  return `${phead("Combined canapé order",v(range))}
-  <div class="nums n3"><div><span>Events</span><b>${evs.length}</b></div><div><span>Guests</span><b>${fmt(guests)||"—"}</b></div><div class="tt"><span>Total to prep</span><b>${fmt(total)||"—"}</b></div></div>
-  <h4>Events</h4><table><tr><th class="l">Event</th><th class="l">Date</th><th class="l">Service</th><th class="l">Venue</th><th>Guests</th><th>To prep</th></tr>
-  ${evs.map((e,i)=>`<tr><td class="nm">${v(evName(e))}</td><td>${v(shortDate(e.ev?.date))}</td><td>${v(e.ev?.service)}</td><td>${v(e.ev?.venue)}</td><td class="n">${v(e.ev?.guests)}</td><td class="n b">${nz(cs[i].tot.total)}</td></tr>`).join("")}</table>
+  return `${phead("Combined order",v(range))}
+  <div class="nums ${mainTotal?"n4":"n3"}"><div><span>Events</span><b>${evs.length}</b></div><div><span>Guests</span><b>${fmt(guests)||"—"}</b></div>${mainTotal?`<div><span>Main portions</span><b>${fmt(mainTotal)}</b></div>`:""}<div class="tt"><span>Canapés to prep</span><b>${fmt(total)||"—"}</b></div></div>
+  <h4>Events</h4><table><tr><th class="l">Event</th><th class="l">Date</th><th class="l">Service</th><th class="l">Venue</th><th>Guests</th><th>Canapés</th>${mainTotal?"<th>Mains</th>":""}</tr>
+  ${evs.map((e,i)=>`<tr><td class="nm">${v(evName(e))}</td><td>${v(shortDate(e.ev?.date))}</td><td>${v(e.ev?.service)}</td><td>${v(e.ev?.venue)}</td><td class="n">${v(e.ev?.guests)}</td><td class="n b">${nz(cs[i].tot.total)}</td>${mainTotal?`<td class="n b">${nz(cs[i].mainTotal)}</td>`:""}</tr>`).join("")}</table>
   <h4>Canapés to prep, by event</h4><table class="combo"><tr><th class="l">Canapé</th>${hd}<th>Total</th></tr>
-  ${CANAPES.map(([k,n])=>`<tr><td class="nm">${n}</td>${row(c=>c.can[k].total)}</tr>`).join("")}
+  ${canRows.map(r=>`<tr><td class="nm">${v(r.name)}</td>${vrow(r)}</tr>`).join("")}
   <tr class="t"><td>Total pieces</td>${row(c=>c.tot.total)}</tr></table>
+  ${mainRows.length?`<h4>Main courses, by event</h4><table class="combo"><tr><th class="l">Main course</th>${hd}<th>Total</th></tr>
+  ${mainRows.map(r=>`<tr><td class="nm">${v(r.name)}</td>${vrow(r)}</tr>`).join("")}
+  <tr class="t"><td>Total portions</td>${row(c=>c.mainTotal)}</tr></table>`:""}
   <h4>Dietary guests, by event</h4>${diets.length?`<table class="combo"><tr><th class="l">Requirement</th>${evs.map(e=>`<th><div class="eh">${v(evName(e))}</div></th>`).join("")}<th>Total</th></tr>
   ${diets.map(([k,a])=>`<tr><td class="nm">${a}</td>${row(c=>c.diet[k].n)}</tr>`).join("")}
   <tr class="t"><td>Alt. pieces</td>${row(c=>c.dq)}</tr></table>`:`<p class="none">None.</p>`}
@@ -551,8 +627,8 @@ document.getElementById("printBtn").onclick=()=>{
   saveLocal();
   let name,body,land=false;
   if(cur==="all"){const d=combinedData();if(!d.evs.length){toast("Tick at least one event to print.");return}
-    name=`Canape combined order - ${d.evs.length} events`;body=printCombined();land=d.evs.length>4}
-  else{const e=E.ev||{};name=`Canape order - ${[e.date,e.name].filter(Boolean).join(" ")||"event"}`;body=printEvent(E)}
+    name=`Combined order - ${d.evs.length} events`;body=printCombined();land=d.evs.length>4}
+  else{const e=E.ev||{};name=`Event order - ${[e.date,e.name].filter(Boolean).join(" ")||"event"}`;body=printEvent(E)}
   document.getElementById("pageSize").textContent=`@page{size:A4 ${land?"landscape":"portrait"};margin:14mm}`;
   document.getElementById("printArea").innerHTML=`<div class="pg${land?" land":""}">${body}</div>`;
   const t=document.title;document.title=name.replace(/[\\/:*?"<>|]/g,"-");
