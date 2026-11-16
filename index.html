@@ -172,18 +172,26 @@ main{background:transparent}
 header{background:linear-gradient(100deg,var(--band) 0%,var(--band2) 100%);position:relative;box-shadow:0 1px 0 rgba(0,0,0,.06),0 8px 24px -18px rgba(0,80,60,.6)}
 header .wrap{padding-block:16px}
 html,body::before{background:var(--band)}
-.brand svg{width:48px;height:48px;overflow:visible}
-.brand .hat{transform-box:fill-box;transform-origin:50% 100%;animation:dance 3.2s ease-in-out infinite}
-.brand .ring{opacity:.55}
-@keyframes dance{
-  0%,46%,100%{transform:none}
-  6%{transform:translateY(-3px) rotate(-10deg)}
-  12%{transform:translateY(0) rotate(0) scale(1.06,.92)}
-  18%{transform:translateY(-3px) rotate(10deg)}
-  24%{transform:translateY(0) rotate(0) scale(1.06,.92)}
-  31%{transform:translateY(-6px) rotate(0) scale(.96,1.06)}
-  38%{transform:translateY(0) scale(1.04,.95)}
-  42%{transform:none}}
+.brand{align-items:flex-end}
+.wm{flex-direction:row;align-items:baseline;gap:10px}
+.wm small{font-size:.7rem;letter-spacing:.34em}
+.nm{position:relative;display:inline-block;font:600 2.5rem var(--display);line-height:1;letter-spacing:-.01em;color:var(--on-band);transform-origin:50% 100%;animation:squash 2.8s ease-in-out infinite}
+.nm .hat{position:absolute;left:-.04em;bottom:84%;width:1.2em;height:auto;color:var(--on-band);transform-origin:50% 100%;animation:hop 2.8s ease-in-out infinite;overflow:visible}
+@keyframes hop{
+  0%,100%{transform:none}
+  8%{transform:scale(1.1,.88)}
+  18%{transform:translateY(-20px) rotate(-8deg) scale(.94,1.08)}
+  27%{transform:translateY(-26px) rotate(5deg)}
+  36%{transform:translateY(0) scale(1.16,.82)}
+  44%{transform:translateY(-6px) scale(.97,1.04)}
+  52%{transform:none}}
+@keyframes squash{
+  0%,34%,60%,100%{transform:none}
+  37%{transform:scale(1.08,.78)}
+  45%{transform:scale(.97,1.06)}
+  52%{transform:none}}
+header .wrap{padding-block:46px 16px}
+@media (max-width:560px){.nm{font-size:2.1rem}header .wrap{padding-block:40px 14px}}
 .wm small{opacity:.75}
 header .btn{border-radius:8px}
 header .btn.primary{background:var(--sun);color:var(--sun-ink);border:0;box-shadow:0 1px 2px rgba(0,0,0,.15)}
@@ -225,15 +233,7 @@ td.grand,table.combo th:last-child{background:var(--green-soft);color:var(--ink)
 <header>
   <div class="wrap">
     <div class="brand" aria-label="Chef Niven">
-      <svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle class="ring" cx="24" cy="24" r="22.5" stroke-width="1.5"/>
-        <g class="hat">
-          <path d="M16 30.5c-4.6-.4-6.4-6.6-2.6-9.2.2-5.6 6.4-8.3 10.6-5.2 4.2-3.1 10.4-.4 10.6 5.2 3.8 2.6 2 8.8-2.6 9.2"/>
-          <path d="M16 30.5h16v4.5H16z"/>
-          <path d="M21 24.5v6M27 24.5v6" stroke-width="1.5"/>
-        </g>
-      </svg>
-      <div class="wm"><small>Chef</small><b>Niven</b></div>
+      <div class="wm"><small>Chef</small><span class="nm">Niven<svg class="hat" viewBox="8 11 32 25.5" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 30.5c-4.6-.4-6.4-6.6-2.6-9.2.2-5.6 6.4-8.3 10.6-5.2 4.2-3.1 10.4-.4 10.6 5.2 3.8 2.6 2 8.8-2.6 9.2"/><path d="M16 30.5h16v4.5H16z"/><path d="M21 24.5v6M27 24.5v6" stroke-width="1.5"/></svg></span></div>
     </div>
     <div class="actions">
       <span class="status" id="status" aria-live="polite">Loading…</span>
