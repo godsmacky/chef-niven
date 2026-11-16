@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Chef Niven Canapé Orders</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22 fill=%22none%22 stroke=%22%232c5a4b%22 stroke-width=%222.4%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M16 30.5c-4.6-.4-6.4-6.6-2.6-9.2.2-5.6 6.4-8.3 10.6-5.2 4.2-3.1 10.4-.4 10.6 5.2 3.8 2.6 2 8.8-2.6 9.2%22/%3E%3Cpath d=%22M16 30.5h16v4.5H16z%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: quiet order pad — slim brand bar, a number strip that answers "how much to prep", then the canapé list; dietary rows appear only when added */
+:root{
+  --bg:#f6f7f5; --paper:#ffffff; --ink:#1b2420; --muted:#6b7772; --faint:#9aa5a0; --line:#e3e8e5; --hover:#f1f4f2;
+  --green:#2c5a4b; --green-soft:#e8f0ec; --warn:#a4462b;
+  --display:'Fraunces',Georgia,serif; --body:'Inter',system-ui,-apple-system,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121715; --paper:#181f1c; --ink:#e7ece9; --muted:#9ba7a2; --faint:#6f7c76; --line:#28322e; --hover:#1f2824;
+  --green:#7fbfa6; --green-soft:#1f2d28; --warn:#e3906f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121715; --paper:#181f1c; --ink:#e7ece9; --muted:#9ba7a2; --faint:#6f7c76; --line:#28322e; --hover:#1f2824;
+  --green:#7fbfa6; --green-soft:#1f2d28; --warn:#e3906f; color-scheme:dark}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+[hidden]{display:none!important}
+body{margin:0;-webkit-text-size-adjust:100%;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:980px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header .wrap{padding-block:22px 18px;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.brand{display:flex;gap:12px;align-items:center;color:var(--green)}
+.brand svg{width:44px;height:44px;flex:0 0 auto}
+.wm{display:flex;flex-direction:column;line-height:1}
+.wm small{font:600 .62rem var(--body);letter-spacing:.32em;text-transform:uppercase;color:var(--muted)}
+.wm b{font:600 1.75rem var(--display);letter-spacing:-.01em;color:var(--ink)}
+.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.status{font-size:.78rem;color:var(--faint);margin-right:4px}
+.btn{font:500 .85rem var(--body);border-radius:8px;padding:9px 14px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+.btn:hover{background:var(--hover)}
+.btn.primary{background:var(--green);border-color:var(--green);color:var(--paper)}
+.btn.primary:hover{filter:brightness(1.07)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--green);outline-offset:1px}
+main .wrap{padding-block:0 56px;display:flex;flex-direction:column;gap:16px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:22px 24px}
+h1.title{font:600 1.05rem var(--body);margin:0 0 2px}
+h2{font:600 .72rem var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+.hint{color:var(--muted);font-size:.8rem;margin:0}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:4px 24px}
+.field{display:flex;flex-direction:column;min-width:0;padding:6px 0}
+.field label{font-size:.74rem;color:var(--muted)}
+input{font:inherit;color:var(--ink);background:transparent;border:0;border-bottom:1px solid var(--line);padding:5px 0;width:100%;min-width:0;border-radius:0}
+input:hover{border-bottom-color:var(--faint)}
+input::placeholder{color:var(--faint);opacity:1}
+.event-name input{font:600 1.35rem var(--display);padding:2px 0 6px}
+/* number strip */
+.strip{display:grid;grid-template-columns:repeat(4,1fr) 1.2fr;gap:0;border:1px solid var(--line);border-radius:12px;background:var(--paper);overflow:hidden}
+.cell{padding:14px 18px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.cell+.cell{border-left:1px solid var(--line)}
+.cell label{font-size:.74rem;color:var(--muted)}
+.cell input{font:600 1.5rem var(--body);font-variant-numeric:tabular-nums;border:0;padding:0}
+.cell.total{background:var(--green-soft)}
+.cell.total output{font:600 1.9rem var(--display);color:var(--green);line-height:1.1}
+.strip-note{grid-column:1/-1;border-top:1px solid var(--line);padding:9px 18px;font-size:.78rem;color:var(--muted)}
+@media (max-width:680px){.strip{grid-template-columns:1fr 1fr}.cell:nth-child(odd){border-left:0}.cell{border-top:1px solid var(--line)}.cell:nth-child(-n+2){border-top:0}.cell.total{grid-column:1/-1}}
+/* tables */
+.tbl{overflow-x:auto;margin:0 -8px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th{font-size:.7rem;font-weight:500;color:var(--muted);text-align:right;padding:0 8px 8px;white-space:nowrap;border-bottom:1px solid var(--line)}
+th.l{text-align:left}
+td{padding:0 8px;border-bottom:1px solid var(--line);vertical-align:middle;height:46px}
+tr:last-child td{border-bottom:0}
+td input{border:0;padding:8px 6px;border-radius:6px}
+td input:hover{background:var(--hover)}
+td input.num{text-align:right}
+td.name{font-weight:500;white-space:nowrap}
+td.out{text-align:right;font-weight:600;padding-right:14px}
+tr.sum td{border-top:1px solid var(--ink);border-bottom:0;font-weight:600}
+.hc{font:500 .66rem var(--body);letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);color:var(--faint);background:transparent;border-radius:99px;padding:2px 8px;margin-left:8px;cursor:pointer;vertical-align:1px}
+.hc[data-v="Hot"]{color:var(--warn);border-color:currentColor}
+.hc[data-v="Cold"]{color:var(--green);border-color:currentColor}
+.warnline{color:var(--warn);font-size:.8rem;margin:10px 0 0}
+/* dietary */
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 .8rem var(--body);border:1px dashed var(--faint);background:transparent;color:var(--muted);border-radius:99px;padding:5px 11px;cursor:pointer}
+.chip:hover{border-style:solid;color:var(--ink)}
+.req b{font-weight:500;display:block;white-space:nowrap}
+.req span{font-size:.72rem;color:var(--faint);white-space:nowrap}
+.x{border:0;background:transparent;color:var(--faint);font-size:1.1rem;cursor:pointer;padding:4px 6px;border-radius:6px}
+.x:hover{color:var(--warn);background:var(--hover)}
+.empty{color:var(--muted);font-size:.85rem;margin:0 0 12px}
+.checks{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.checks .row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{font:500 .8rem var(--body);border:0;background:transparent;color:var(--muted);padding:6px 14px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--green);color:var(--paper)}
+details summary{cursor:pointer;color:var(--muted);font-size:.85rem}
+.overlay{position:fixed;inset:0;background:rgba(10,20,16,.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}
+.dialog{background:var(--paper);color:var(--ink);border-radius:12px;padding:22px;max-width:420px;width:100%;display:flex;flex-direction:column;gap:12px;border:1px solid var(--line)}
+.dialog h3{font:600 1.25rem var(--display);margin:0}.dialog p{margin:0}
+.dialog .row{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:4px}
+.btn.danger{background:var(--warn);border-color:var(--warn);color:var(--paper)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:8px;font-weight:500;z-index:30;max-width:calc(100% - 32px)}
+/* event bar + combined */
+.evbar{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.evtab{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;font:inherit;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:8px 14px;cursor:pointer;color:var(--ink);max-width:220px}
+.evtab b{font-weight:600;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.evtab small{font-size:.72rem;color:var(--muted);white-space:nowrap}
+.evtab:hover{background:var(--hover)}
+.evtab[aria-current="true"]{border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}
+.evtab.all b{color:var(--green)}
+.evtab.add{justify-content:center;border-style:dashed;color:var(--muted);font-weight:500}
+.pick{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:99px;padding:6px 12px;cursor:pointer;font-size:.84rem}
+.pick input{width:auto;accent-color:var(--green)}
+.pick b{font-weight:600}
+.strip.three{grid-template-columns:1fr 1fr 1.4fr}
+@media (max-width:680px){.strip.three{grid-template-columns:1fr 1fr}}
+.big{font:600 1.5rem var(--body);font-variant-numeric:tabular-nums}
+table.combo th{vertical-align:bottom}
+.eh{display:block;color:var(--ink);font-weight:600;max-width:120px;overflow:hidden;text-overflow:ellipsis;margin-left:auto}
+.ed{display:block;font-size:.66rem}
+td.grand,table.combo th:last-child{background:var(--green-soft)}
+td.muted{color:var(--muted)}
+.foot-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.btn.ghost{background:transparent}
+.danger-text{color:var(--warn)}
+@media (max-width:560px){.card{padding:18px 16px}.wm b{font-size:1.45rem}}
+/* device note */
+.devnote{display:flex;gap:10px 16px;flex-wrap:wrap;align-items:center;justify-content:space-between;font-size:.8rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;margin-top:8px}
+.devnote .btns{display:flex;gap:8px}
+/* printing */
+#printArea{display:none}
+@media print{
+  body{background:#fff!important;color:#1b2420}
+  body::before,header,main,#layer,.toast{display:none!important}
+  html{padding:0}
+  #printArea{display:block;font:9pt/1.4 Arial,Helvetica,sans-serif;color:#1b2420;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+#printArea .pg{max-width:182mm;margin:0 auto}#printArea .pg.land{max-width:269mm}
+#printArea .ph{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:1.5px solid #2c5a4b}
+#printArea .pb{display:flex;gap:9px;align-items:center}#printArea .plogo{width:36px;height:36px}#printArea .pk{font-size:6.5pt;letter-spacing:.3em;color:#6b7772;font-weight:700}#printArea .pn{font:600 17pt Georgia,serif;line-height:1}
+#printArea .pr{text-align:right}#printArea .pt{font-size:7pt;letter-spacing:.14em;text-transform:uppercase;color:#6b7772;font-weight:700}#printArea .pd{font-size:10pt;font-weight:700}
+#printArea .ev{font:600 15pt Georgia,serif;margin:12px 0 6px;border-bottom:1px solid #ccc;padding-bottom:3px;min-height:26px}
+#printArea .g2,#printArea .g3{display:grid;gap:6px 18px}#printArea .g3{grid-template-columns:repeat(3,1fr)}#printArea .g2{grid-template-columns:1fr 1fr;margin-top:14px}
+#printArea .pl{font-size:7pt;color:#6b7772}#printArea .pv{border-bottom:1px solid #ccc;min-height:16px;padding:1px 0}
+#printArea .nums{display:grid;border:1px solid #ccc;border-radius:6px;margin:12px 0 4px}#printArea .n4{grid-template-columns:repeat(4,1fr)}#printArea .n3{grid-template-columns:repeat(3,1fr)}
+#printArea .nums div{padding:6px 10px}#printArea .nums div+div{border-left:1px solid #ccc}#printArea .nums span{display:block;font-size:7pt;color:#6b7772}#printArea .nums b{font-size:13pt}#printArea .nums .tt{background:#e8f0ec}#printArea .nums .tt b{color:#2c5a4b}
+#printArea h4{font-size:7.5pt;letter-spacing:.14em;text-transform:uppercase;color:#6b7772;margin:14px 0 4px}
+#printArea table{width:100%;border-collapse:collapse}#printArea th{font-size:7pt;font-weight:400;color:#6b7772;text-align:right;padding:3px 5px;border-bottom:1px solid #999;vertical-align:bottom;background:none;white-space:normal}#printArea th.l{text-align:left}
+#printArea th .eh{font-weight:700;color:#1b2420;font-size:7.5pt;max-width:none}#printArea th .ed{font-size:6.5pt}
+#printArea td{border-bottom:1px solid #e0e4e2;padding:4px 5px;height:20px}#printArea td.nm{font-weight:700;white-space:nowrap}#printArea td.n{text-align:right}#printArea .b{font-weight:700}
+#printArea table.combo td:last-child,#printArea table.combo th:last-child{background:#e8f0ec}
+#printArea tr.t td{border-top:1.2px solid #1b2420;border-bottom:0;font-weight:700}#printArea .none{color:#6b7772;margin:2px 0}
+#printArea .ck{display:flex;justify-content:space-between;gap:12px;margin-top:12px;padding:7px 0;border-top:1px solid #e0e4e2;border-bottom:1px solid #e0e4e2}
+</style>
+<style id="pageSize">@page{size:A4 portrait;margin:14mm}</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand" aria-label="Chef Niven">
+      <svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="24" cy="24" r="22.5" stroke-width="1.5"/>
+        <path d="M16 30.5c-4.6-.4-6.4-6.6-2.6-9.2.2-5.6 6.4-8.3 10.6-5.2 4.2-3.1 10.4-.4 10.6 5.2 3.8 2.6 2 8.8-2.6 9.2"/>
+        <path d="M16 30.5h16v4.5H16z"/>
+        <path d="M21 24.5v6M27 24.5v6" stroke-width="1.5"/>
+      </svg>
+      <div class="wm"><small>Chef</small><b>Niven</b></div>
+    </div>
+    <div class="actions">
+      <span class="status" id="status" aria-live="polite">Loading…</span>
+      <button class="btn" id="newBtn" type="button">+ New event</button>
+      <button class="btn primary" id="printBtn" type="button">Print sheet</button>
+    </div>
+  </div>
+</header>
+<main><div class="wrap"><nav class="evbar" id="evbar" aria-label="Events"></nav><div id="view" style="display:flex;flex-direction:column;gap:16px"></div>
+<div class="devnote"><span>Events are saved in this browser on this device. Back up to keep a copy or move them to another device. <span id="backupNote"></span></span><span class="btns"><button class="btn" id="backupBtn" type="button">Back up</button><button class="btn" id="restoreBtn" type="button">Restore</button><input type="file" id="restoreFile" accept=".json,application/json" hidden></span></div></div></main>
+<div id="printArea"></div>
+<div id="layer"></div>
+
+<script>
+const CANAPES=[["C1","Veg Arancini"],["C2","Fried Dumplings"],["C3","Chicken Ribs"],["C4","Calamari"],["C5","Mini Beef Pie"],["C6","Beef Tart"],["C7","Pork Tart"]];
+const DIETS=[["veg","Vegetarian","No meat, poultry or fish"],["vegan","Vegan","No animal products incl. dairy, egg, honey"],["gf","Gluten-free / Coeliac","No wheat, barley, rye; avoid cross-contact"],["df","Dairy-free","No milk, butter, cream, cheese"],["nut","Nut allergy","No nuts or nut oils; check traces"],["shell","Shellfish / Seafood","No crustaceans, molluscs or fish"],["egg","Egg-free","No egg, mayo, aioli, egg wash"],["sesame","Sesame allergy","No sesame seeds or oil"],["pesc","Pescatarian","Fish OK, no meat or poultry"],["halal","Halal","Halal-certified meat, no pork or alcohol"],["kosher","Kosher","No pork/shellfish, no meat + dairy"],["other","Other",""]];
+const COL="events", LS="chef-niven-canape-events-v3", LS_OLD="chef-niven-canape-sheet-v2", LS_UI="chef-niven-ui";
+let EV={}, cur="all", E=null, excluded=new Set(), db=null;
+
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const get=p=>p.split(".").reduce((o,k)=>o==null?undefined:o[k],E);
+function set(p,v){const ks=p.split(".");let o=E;ks.slice(0,-1).forEach(k=>{if(typeof o[k]!=="object"||o[k]===null)o[k]={};o=o[k]});o[ks.at(-1)]=v}
+const num=v=>{const n=parseFloat(String(v??"").replace(",","."));return isFinite(n)?n:null};
+const fmt=n=>n==null?"":(Math.round(n*10)/10).toLocaleString();
+const nz=n=>n?fmt(n):"";
+const id=p=>"f-"+p.replace(/\./g,"-");
+const activeIn=(e,k)=>{const r=e?.diet?.[k];return !!(r&&(r.on||r.n||r.alt||r.rep||r.notes||r.qty))};
+const active=k=>activeIn(E,k);
+const newId=()=>"e"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const sorted=()=>Object.values(EV).sort((a,b)=>(a.ev?.date||"9999").localeCompare(b.ev?.date||"9999")||(a.created||"").localeCompare(b.created||""));
+function shortDate(d){if(!d)return"";const t=new Date(d+"T12:00");return isNaN(t)?d:t.toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short"})}
+function niceDate(d){if(!d)return"";const t=new Date(d+"T12:00");return isNaN(t)?d:t.toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long",year:"numeric"})}
+const evName=e=>e.ev?.name||"Untitled event";
+
+/* ---------- calculations ---------- */
+function calc(e=E){
+  const G=num(e.ev?.guests)||0, B=num(e.ev?.buffer)??0, P=num(e.ev?.ppg);
+  const can={},tot={std:0,diet:0,buf:0,total:0};
+  CANAPES.forEach(([c])=>{const r=(e.can||{})[c]||{},pcs=num(r.pcs);
+    const stdCalc=pcs!=null&&G?Math.ceil(G*pcs):null, std=num(r.std)??stdCalc??0, diet=num(r.diet)??0;
+    const bufCalc=(std+diet)&&B?Math.ceil((std+diet)*B/100):null, buf=num(r.buf)??bufCalc??0, total=std+diet+buf;
+    can[c]={stdCalc,bufCalc,std,diet,buf,total};tot.std+=std;tot.diet+=diet;tot.buf+=buf;tot.total+=total;});
+  const diet={};let dn=0,dq=0;
+  DIETS.forEach(([k])=>{const r=(e.diet||{})[k]||{},n=num(r.n)||0,qCalc=n&&P?Math.ceil(n*P):null,q=num(r.qty)??qCalc??0;diet[k]={n,qCalc,q};if(activeIn(e,k)){dn+=n;dq+=q}});
+  return {G,can,tot,diet,dn,dq};
+}
+
+/* ---------- event bar ---------- */
+function renderBar(){
+  const list=sorted();
+  document.getElementById("evbar").innerHTML=
+   `<button class="evtab all" type="button" data-go="all" aria-current="${cur==="all"}"><b>All events</b><small>Combined order · ${list.length} event${list.length===1?"":"s"}</small></button>`+
+   list.map(e=>`<button class="evtab" type="button" data-go="${e.id}" aria-current="${cur===e.id}"><b>${esc(evName(e))}</b><small>${esc(shortDate(e.ev?.date)||"No date")}${e.ev?.guests?` · ${esc(e.ev.guests)} guests`:""}</small></button>`).join("")+
+   `<button class="evtab add" type="button" id="addEv">+ New event</button>`;
+}
+
+/* ---------- event view ---------- */
+const inp=(p,o={})=>`<input id="${id(p)}" data-k="${p}" value="${esc(get(p))}" ${o.num?'class="num" inputmode="decimal"':""} ${o.ph?`placeholder="${esc(o.ph)}"`:""} ${o.type?`type="${o.type}"`:""} aria-label="${esc(o.label||p)}" autocomplete="off">`;
+const fld=(label,p,o={})=>`<div class="field ${o.cls||""}"><label for="${id(p)}">${label}</label>${inp(p,{...o,label})}</div>`;
+const cell=(label,p,ph)=>`<div class="cell"><label for="${id(p)}">${label}</label>${inp(p,{num:1,label,ph})}</div>`;
+function eventView(){
+  const dActive=DIETS.filter(([k])=>active(k)), dIdle=DIETS.filter(([k])=>!active(k)), e=E.ev||{};
+  return `
+  <section class="card">
+    <div class="fields" style="grid-template-columns:1fr">${fld("Event","ev.name",{cls:"event-name",ph:"Event name"})}</div>
+    <div class="fields">
+      ${fld("Date","ev.date",{type:"date"})}${fld("Service time","ev.service",{ph:"18:00 – 20:00"})}${fld("Venue / room","ev.venue")}
+      ${fld("Client / contact","ev.client")}${fld("Order cut-off","ev.cutoff")}${fld("Staff meals","ev.staff",{num:1})}
+    </div>
+  </section>
+  <section class="strip" aria-label="Numbers">
+    ${cell("Guests","ev.guests","0")}${cell("Pieces per guest","ev.ppg","0")}${cell("Buffer %","ev.buffer","0")}${cell("Duration (hrs)","ev.dur","0")}
+    <div class="cell total"><label>Total to prep</label><output id="bigTotal">0</output></div>
+    <div class="strip-note">1 hr pre-dinner: 3–4 pcs per guest · 2 hr reception: 6–8 · 3 hr+ in place of a meal: 10–12</div>
+  </section>
+  <section class="card">
+    <h2>Canapés</h2>
+    <div class="tbl"><table>
+      <tr><th class="l">Canapé</th><th>Pcs / guest</th><th>Standard</th><th>Dietary</th><th>Buffer</th><th>To prep</th><th class="l">Allergens &amp; notes</th></tr>
+      ${CANAPES.map(([c,n])=>{const hc=get(`can.${c}.hc`)||"";return `<tr>
+        <td class="name">${n}<button class="hc" type="button" data-hc="${c}" data-v="${esc(hc)}" title="Tap to set hot or cold">${esc(hc)||"Hot / cold"}</button></td>
+        <td style="width:84px">${inp(`can.${c}.pcs`,{num:1,label:n+" pieces per guest"})}</td>
+        <td style="width:84px">${inp(`can.${c}.std`,{num:1,label:n+" standard quantity"})}</td>
+        <td style="width:84px">${inp(`can.${c}.diet`,{num:1,label:n+" dietary alternative quantity"})}</td>
+        <td style="width:80px">${inp(`can.${c}.buf`,{num:1,label:n+" buffer"})}</td>
+        <td class="out" data-out="tot-${c}" style="width:84px"></td>
+        <td style="min-width:170px">${inp(`can.${c}.notes`,{label:n+" allergens and notes",ph:"—"})}</td></tr>`}).join("")}
+      <tr class="sum"><td>Total pieces</td><td></td><td class="out" data-out="t-std"></td><td class="out" data-out="t-diet"></td><td class="out" data-out="t-buf"></td><td class="out" data-out="t-total"></td><td></td></tr>
+    </table></div>
+    <p class="hint" style="margin-top:12px">Faded numbers are calculated from guests × pieces, plus buffer. Type over one to change it.</p>
+    <p class="warnline" id="ppgCheck" hidden></p>
+  </section>
+  <section class="card">
+    <h2>Dietary requirements</h2>
+    ${dActive.length?`<div class="tbl" style="margin-bottom:16px"><table>
+      <tr><th class="l">Requirement</th><th>Guests</th><th class="l">Replaces</th><th class="l">Alternative</th><th>Alt. qty</th><th class="l">Names / table</th><th></th></tr>
+      ${dActive.map(([k,a,b])=>`<tr><td class="req"><b>${a}</b>${b?`<span>${b}</span>`:""}</td>
+        <td style="width:76px">${inp(`diet.${k}.n`,{num:1,label:a+" number of guests"})}</td>
+        <td style="min-width:110px">${inp(`diet.${k}.rep`,{label:a+" replaces",ph:"Canapé"})}</td>
+        <td style="min-width:130px">${inp(`diet.${k}.alt`,{label:a+" alternative canapé",ph:"Swap-in"})}</td>
+        <td style="width:76px">${inp(`diet.${k}.qty`,{num:1,label:a+" alternative quantity"})}</td>
+        <td style="min-width:140px">${inp(`diet.${k}.notes`,{label:a+" names and notes",ph:"—"})}</td>
+        <td style="width:36px"><button class="x" type="button" data-rm="${k}" aria-label="Remove ${a}">×</button></td></tr>`).join("")}
+      <tr class="sum"><td>Total</td><td class="out" data-out="d-n"></td><td></td><td></td><td class="out" data-out="d-q"></td><td></td><td></td></tr>
+    </table></div>`:`<p class="empty">No dietary requirements yet. Add any that apply to this event.</p>`}
+    <div class="chips">${dIdle.map(([k,a])=>`<button class="chip" type="button" data-add="${k}">+ ${a}</button>`).join("")}</div>
+    <div class="checks" style="margin-top:22px">
+      <div class="row"><span>Severe allergy (anaphylaxis) confirmed?</span>
+        <span class="seg" role="group">${["yes","no"].map(x=>`<button type="button" data-seg="anaph" data-v="${x}" aria-pressed="${e.anaph===x}">${x==="yes"?"Yes":"No"}</button>`).join("")}</span></div>
+      <div class="row"><span>Dietary items labelled &amp; plated separately?</span>
+        <span class="seg" role="group">${["yes","no"].map(x=>`<button type="button" data-seg="labelled" data-v="${x}" aria-pressed="${e.labelled===x}">${x==="yes"?"Yes":"No"}</button>`).join("")}</span></div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Sign-off</h2>
+    <div class="fields">${fld("Completed by / date","ev.completed")}${fld("Chef sign-off / order placed","ev.signoff")}</div>
+  </section>
+  <div class="foot-actions"><button class="btn ghost" type="button" id="dupEv">Duplicate event</button><button class="btn ghost danger-text" type="button" id="delEv">Delete event</button></div>`;
+}
+
+/* ---------- combined view ---------- */
+function combinedData(){
+  const evs=sorted().filter(e=>!excluded.has(e.id)), cs=evs.map(e=>calc(e));
+  const diets=DIETS.filter(([k])=>evs.some(e=>activeIn(e,k)));
+  return {evs,cs,diets,guests:cs.reduce((a,c)=>a+c.G,0),total:cs.reduce((a,c)=>a+c.tot.total,0)};
+}
+function combinedView(){
+  const all=sorted(); if(!all.length)return `<section class="card"><p class="empty">No events yet. Add one with “+ New event”.</p></section>`;
+  const {evs,cs,diets,guests,total}=combinedData();
+  const sumRow=f=>cs.map(c=>`<td class="out">${nz(f(c))}</td>`).join("")+`<td class="out grand">${nz(cs.reduce((a,c)=>a+f(c),0))}</td>`;
+  return `
+  <section class="card">
+    <h2>Events in this order</h2>
+    <div class="chips">${all.map(e=>`<label class="pick"><input type="checkbox" data-inc="${e.id}" ${excluded.has(e.id)?"":"checked"}> <span><b>${esc(evName(e))}</b> ${esc(shortDate(e.ev?.date)||"")}</span></label>`).join("")}</div>
+  </section>
+  <section class="strip three" aria-label="Combined numbers">
+    <div class="cell"><label>Events</label><span class="big">${evs.length}</span></div>
+    <div class="cell"><label>Guests</label><span class="big">${fmt(guests)||0}</span></div>
+    <div class="cell total"><label>Total to prep</label><output>${fmt(total)||0}</output></div>
+  </section>
+  ${evs.length?`<section class="card">
+    <h2>Canapés to prep, by event</h2>
+    <div class="tbl"><table class="combo">
+      <tr><th class="l">Canapé</th>${evs.map(e=>`<th><span class="eh">${esc(evName(e))}</span><span class="ed">${esc(shortDate(e.ev?.date))}</span></th>`).join("")}<th>Total</th></tr>
+      ${CANAPES.map(([k,n])=>`<tr><td class="name">${n}</td>${sumRow(c=>c.can[k].total)}</tr>`).join("")}
+      <tr class="sum"><td>Total pieces</td>${sumRow(c=>c.tot.total)}</tr>
+      <tr><td class="muted">Guests</td>${sumRow(c=>c.G)}</tr>
+    </table></div>
+  </section>
+  <section class="card">
+    <h2>Dietary guests, by event</h2>
+    ${diets.length?`<div class="tbl"><table class="combo">
+      <tr><th class="l">Requirement</th>${evs.map(e=>`<th><span class="eh">${esc(evName(e))}</span></th>`).join("")}<th>Total</th></tr>
+      ${diets.map(([k,a])=>`<tr><td class="name">${a}</td>${sumRow(c=>c.diet[k].n)}</tr>`).join("")}
+      <tr class="sum"><td>Alt. pieces</td>${sumRow(c=>c.dq)}</tr>
+    </table></div>`:`<p class="empty">No dietary requirements in these events.</p>`}
+  </section>`:""}`;
+}
+
+/* ---------- render ---------- */
+function render(){
+  renderBar();
+  E=cur==="all"?null:EV[cur];
+  document.getElementById("view").innerHTML=cur==="all"?combinedView():eventView();
+  document.getElementById("printBtn").textContent=cur==="all"?"Print combined":"Print sheet";
+  if(E)refresh();
+}
+const out=(k,v)=>{const el=document.querySelector(`[data-out="${k}"]`);if(el)el.textContent=nz(v)};
+const ph=(p,v)=>{const el=document.getElementById(id(p));if(el)el.placeholder=v!=null?fmt(v):""};
+function refresh(){
+  const c=calc();
+  CANAPES.forEach(([k])=>{const r=c.can[k];ph(`can.${k}.std`,r.stdCalc);ph(`can.${k}.buf`,r.bufCalc);out("tot-"+k,r.total)});
+  out("t-std",c.tot.std);out("t-diet",c.tot.diet);out("t-buf",c.tot.buf);out("t-total",c.tot.total);
+  DIETS.forEach(([k])=>ph(`diet.${k}.qty`,c.diet[k].qCalc));
+  out("d-n",c.dn);out("d-q",c.dq);
+  document.getElementById("bigTotal").textContent=fmt(c.tot.total)||"0";
+  const P=num(E.ev?.ppg),sum=CANAPES.reduce((a,[k])=>a+(num(E.can?.[k]?.pcs)||0),0),el=document.getElementById("ppgCheck");
+  const bad=P&&sum&&Math.abs(P-sum)>0.01; el.hidden=!bad; if(bad)el.textContent=`Pieces per guest across the canapés add up to ${fmt(sum)}, but the event is set to ${fmt(P)}.`;
+}
+function go(to){cur=to;saveUI();render();window.scrollTo({top:0})}
+
+/* ---------- events: create / delete ---------- */
+function blankFrom(src){
+  const ev=src?.ev||{},can={};
+  CANAPES.forEach(([c])=>{const r=src?.can?.[c]||{};can[c]={hc:r.hc,pcs:r.pcs,notes:r.notes}});
+  return {id:newId(),created:new Date().toISOString(),ev:{buffer:ev.buffer,cutoff:ev.cutoff,ppg:ev.ppg},can,diet:{}};
+}
+function addEvent(){const last=Object.values(EV).sort((a,b)=>(b.updatedAt||"").localeCompare(a.updatedAt||""))[0];
+  const e=blankFrom(last);EV[e.id]=e;markDirty(e.id);go(e.id);setTimeout(()=>document.getElementById(id("ev.name"))?.focus(),0)}
+function dupEvent(){const e=JSON.parse(JSON.stringify(E));e.id=newId();e.created=new Date().toISOString();e.ev.name=(e.ev.name||"Event")+" (copy)";e.ev.signoff="";e.ev.completed="";EV[e.id]=e;markDirty(e.id);go(e.id);toast("Event duplicated")}
+
+/* ---------- interactions ---------- */
+document.addEventListener("input",ev=>{const t=ev.target;
+  if(t.dataset?.inc!=null){t.checked?excluded.delete(t.dataset.inc):excluded.add(t.dataset.inc);saveUI();render();return}
+  const k=t.dataset?.k;if(!k||!E)return;set(k,t.value);refresh();markDirty(E.id);
+  if(/^ev\.(name|date|guests)$/.test(k))renderBar();});
+document.addEventListener("click",ev=>{
+  const t=ev.target.closest("button");if(!t||t.closest(".dialog"))return;
+  if(t.dataset.go){go(t.dataset.go);return}
+  if(t.id==="addEv"||t.id==="newBtn"){addEvent();return}
+  if(t.id==="dupEv"){dupEvent();return}
+  if(t.id==="delEv"){const e=E;dialog(`<h3>Delete “${esc(evName(e))}”?</h3><p>This removes the event and its quantities for good.</p>`,[{t:"Cancel"},{t:"Delete event",cls:"danger",fn:()=>removeEvent(e.id)}]);return}
+  if(!E)return;
+  if(t.dataset.hc){const p=`can.${t.dataset.hc}.hc`,c=get(p)||"",nx=c===""?"Hot":c==="Hot"?"Cold":"";set(p,nx);t.dataset.v=nx;t.textContent=nx||"Hot / cold";markDirty(E.id)}
+  else if(t.dataset.add){set(`diet.${t.dataset.add}.on`,true);render();markDirty(E.id);document.getElementById(id(`diet.${t.dataset.add}.n`))?.focus()}
+  else if(t.dataset.rm){if(E.diet)delete E.diet[t.dataset.rm];render();markDirty(E.id)}
+  else if(t.dataset.seg){const p=`ev.${t.dataset.seg}`,v=get(p)===t.dataset.v?"":t.dataset.v;set(p,v);
+    t.parentElement.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===v)));markDirty(E.id)}
+});
+
+/* ---------- saving (in this browser) ---------- */
+let saveTimer=null;
+const status=t=>document.getElementById("status").textContent=t;
+function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(EV));return true}catch{return false}}
+function saveUI(){try{localStorage.setItem(LS_UI,JSON.stringify({cur,excluded:[...excluded]}))}catch{}}
+function markDirty(eid){if(EV[eid])EV[eid].updatedAt=new Date().toISOString();status(saveLocal()?"Saved on this device":"Not saved: browser storage is blocked")}
+function flush(){saveLocal()}
+function removeEvent(eid){
+  delete EV[eid];excluded.delete(eid);
+  if(!Object.keys(EV).length){const e=blankFrom(null);EV[e.id]=e}
+  saveLocal();go("all");toast("Event deleted");
+}
+function migrate(e){
+  if(e.ev&&e.ev.labelled===true)e.ev.labelled="yes";
+  CANAPES.forEach(([c])=>{const r=e.can?.[c];if(r&&r.all&&!r.notes){r.notes=r.all;delete r.all}});
+  return e;
+}
+function boot(){
+  try{const l=localStorage.getItem(LS);if(l)EV=JSON.parse(l)||{}}catch{EV={}}
+  try{const u=JSON.parse(localStorage.getItem(LS_UI)||"{}");if(u.cur)cur=u.cur;excluded=new Set(u.excluded||[])}catch{}
+  Object.values(EV).forEach(migrate);
+  if(!Object.keys(EV).length){const e=blankFrom(null);EV[e.id]=e;cur=e.id;saveLocal()}
+  if(cur!=="all"&&!EV[cur])cur=sorted()[0]?.id||"all";
+  render();renderBackupNote();
+  let ok=true;try{localStorage.setItem(LS+"-test","1");localStorage.removeItem(LS+"-test")}catch{ok=false}
+  status(ok?"Saved on this device":"Not saved: browser storage is blocked");
+  try{navigator.storage?.persist?.()}catch{}
+}
+window.addEventListener("pagehide",saveLocal);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")saveLocal()});
+boot();
+
+/* ---------- back up / restore ---------- */
+function renderBackupNote(){
+  let last=null;try{last=localStorage.getItem(LS+"-lastBackup")}catch{}
+  document.getElementById("backupNote").textContent=last?`Last backup: ${new Date(last).toLocaleString(undefined,{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})}.`:"No backup yet.";
+}
+document.getElementById("backupBtn").onclick=()=>{
+  saveLocal();
+  const data=JSON.stringify({app:"chef-niven-canapes",version:3,exported:new Date().toISOString(),events:EV},null,2);
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([data],{type:"application/json"}));
+  a.download=`chef-niven-events-${new Date().toISOString().slice(0,10)}.json`;document.body.append(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);
+  try{localStorage.setItem(LS+"-lastBackup",new Date().toISOString())}catch{}
+  renderBackupNote();toast("Backup file saved");
+};
+document.getElementById("restoreBtn").onclick=()=>document.getElementById("restoreFile").click();
+document.getElementById("restoreFile").addEventListener("change",async ev=>{
+  const f=ev.target.files?.[0];ev.target.value="";if(!f)return;
+  try{
+    const d=JSON.parse(await f.text()),inc=d?.events;
+    if(!inc||typeof inc!=="object")throw 0;
+    let added=0,updated=0;
+    Object.entries(inc).forEach(([k,e])=>{if(!e||typeof e!=="object")return;e.id=k;migrate(e);
+      if(!EV[k]){EV[k]=e;added++}else if((e.updatedAt||"")>(EV[k].updatedAt||"")){EV[k]=e;updated++}});
+    saveLocal();go("all");
+    toast(added||updated?`Restored: ${added} new, ${updated} updated`:"Nothing new in that backup");
+  }catch{toast("That file isn't a Chef Niven backup.")}
+});
+
+
+/* ---------- dialogs ---------- */
+function toast(t){const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.append(d);setTimeout(()=>d.remove(),3200)}
+function dialog(html,buttons){const L=document.getElementById("layer");
+  L.innerHTML=`<div class="overlay"><div class="dialog" role="dialog" aria-modal="true">${html}<div class="row">${buttons.map((b,i)=>`<button class="btn ${b.cls||""}" data-i="${i}" type="button">${b.t}</button>`).join("")}</div></div></div>`;
+  L.querySelector(".dialog .row").addEventListener("click",e=>{const i=e.target.dataset.i;if(i==null)return;L.innerHTML="";buttons[i].fn?.()});
+  L.querySelector(".dialog .row button:last-child").focus();}
+
+/* ---------- printing ---------- */
+const LOGO=`<svg class="plogo" viewBox="0 0 48 48" fill="none" stroke="#2c5a4b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="22.5" stroke-width="1.5"/><path d="M16 30.5c-4.6-.4-6.4-6.6-2.6-9.2.2-5.6 6.4-8.3 10.6-5.2 4.2-3.1 10.4-.4 10.6 5.2 3.8 2.6 2 8.8-2.6 9.2"/><path d="M16 30.5h16v4.5H16z"/><path d="M21 24.5v6M27 24.5v6" stroke-width="1.5"/></svg>`;
+const v=x=>esc(x??"");
+const pf=(l,x)=>`<div><div class="pl">${l}</div><div class="pv">${v(x)||"&nbsp;"}</div></div>`;
+const yn=x=>x==="yes"?"Yes":x==="no"?"No":"☐ Yes ☐ No";
+const phead=(kicker,right)=>`<div class="ph"><div class="pb">${LOGO}<div><div class="pk">CHEF</div><div class="pn">Niven</div></div></div><div class="pr"><div class="pt">${kicker}</div><div class="pd">${right}</div></div></div>`;
+function printEvent(ev){
+  const e=ev.ev||{},c=calc(ev),dA=DIETS.filter(([k])=>activeIn(ev,k));
+  return `${phead("Canapé order",v(niceDate(e.date)))}
+  <div class="ev">${v(e.name)||"&nbsp;"}</div>
+  <div class="g3">${pf("Service time",e.service)}${pf("Venue / room",e.venue)}${pf("Client / contact",e.client)}${pf("Order cut-off",e.cutoff)}${pf("Duration (hrs)",e.dur)}${pf("Staff meals",e.staff)}</div>
+  <div class="nums n4"><div><span>Guests</span><b>${v(e.guests)||"—"}</b></div><div><span>Pieces per guest</span><b>${v(e.ppg)||"—"}</b></div><div><span>Buffer</span><b>${e.buffer?v(e.buffer)+"%":"—"}</b></div><div class="tt"><span>Total to prep</span><b>${nz(c.tot.total)||"—"}</b></div></div>
+  <h4>Canapés</h4><table><tr><th class="l">Canapé</th><th class="l">H/C</th><th>Pcs/guest</th><th>Standard</th><th>Dietary</th><th>Buffer</th><th>To prep</th><th class="l">Allergens &amp; notes</th></tr>
+  ${CANAPES.map(([k,n])=>{const r=c.can[k],x=ev.can?.[k]||{};return `<tr><td class="nm">${n}</td><td>${v(x.hc)}</td><td class="n">${v(x.pcs)}</td><td class="n">${nz(r.std)}</td><td class="n">${nz(r.diet)}</td><td class="n">${nz(r.buf)}</td><td class="n b">${nz(r.total)}</td><td>${v(x.notes)}</td></tr>`}).join("")}
+  <tr class="t"><td>Total pieces</td><td></td><td></td><td class="n">${nz(c.tot.std)}</td><td class="n">${nz(c.tot.diet)}</td><td class="n">${nz(c.tot.buf)}</td><td class="n">${nz(c.tot.total)}</td><td></td></tr></table>
+  <h4>Dietary requirements</h4>${dA.length?`<table><tr><th class="l">Requirement</th><th>Guests</th><th class="l">Replaces</th><th class="l">Alternative</th><th>Alt. qty</th><th class="l">Names / table</th></tr>
+  ${dA.map(([k,a])=>{const x=ev.diet?.[k]||{};return `<tr><td class="nm">${a}</td><td class="n">${v(x.n)}</td><td>${v(x.rep)}</td><td>${v(x.alt)}</td><td class="n">${nz(c.diet[k].q)}</td><td>${v(x.notes)}</td></tr>`}).join("")}
+  <tr class="t"><td>Total</td><td class="n">${nz(c.dn)}</td><td></td><td></td><td class="n">${nz(c.dq)}</td><td></td></tr></table>`:`<p class="none">None for this event.</p>`}
+  <div class="ck"><div>Severe allergy (anaphylaxis) confirmed: <b>${yn(e.anaph)}</b></div><div>Dietary items labelled &amp; plated separately: <b>${yn(e.labelled)}</b></div></div>
+  <div class="g2">${pf("Completed by / date",e.completed)}${pf("Chef sign-off / order placed",e.signoff)}</div>`;
+}
+function printCombined(){
+  const {evs,cs,diets,guests,total}=combinedData();
+  const ds=evs.map(e=>e.ev?.date).filter(Boolean).sort(),range=ds.length?(ds[0]===ds.at(-1)?niceDate(ds[0]):`${shortDate(ds[0])} – ${shortDate(ds.at(-1))}`):"";
+  const row=f=>cs.map(c=>`<td class="n">${nz(f(c))}</td>`).join("")+`<td class="n b">${nz(cs.reduce((a,c)=>a+f(c),0))}</td>`;
+  const hd=evs.map(e=>`<th><div class="eh">${v(evName(e))}</div><div class="ed">${v(shortDate(e.ev?.date))}${e.ev?.service?" · "+v(e.ev.service):""}</div></th>`).join("");
+  return `${phead("Combined canapé order",v(range))}
+  <div class="nums n3"><div><span>Events</span><b>${evs.length}</b></div><div><span>Guests</span><b>${fmt(guests)||"—"}</b></div><div class="tt"><span>Total to prep</span><b>${fmt(total)||"—"}</b></div></div>
+  <h4>Events</h4><table><tr><th class="l">Event</th><th class="l">Date</th><th class="l">Service</th><th class="l">Venue</th><th>Guests</th><th>To prep</th></tr>
+  ${evs.map((e,i)=>`<tr><td class="nm">${v(evName(e))}</td><td>${v(shortDate(e.ev?.date))}</td><td>${v(e.ev?.service)}</td><td>${v(e.ev?.venue)}</td><td class="n">${v(e.ev?.guests)}</td><td class="n b">${nz(cs[i].tot.total)}</td></tr>`).join("")}</table>
+  <h4>Canapés to prep, by event</h4><table class="combo"><tr><th class="l">Canapé</th>${hd}<th>Total</th></tr>
+  ${CANAPES.map(([k,n])=>`<tr><td class="nm">${n}</td>${row(c=>c.can[k].total)}</tr>`).join("")}
+  <tr class="t"><td>Total pieces</td>${row(c=>c.tot.total)}</tr></table>
+  <h4>Dietary guests, by event</h4>${diets.length?`<table class="combo"><tr><th class="l">Requirement</th>${evs.map(e=>`<th><div class="eh">${v(evName(e))}</div></th>`).join("")}<th>Total</th></tr>
+  ${diets.map(([k,a])=>`<tr><td class="nm">${a}</td>${row(c=>c.diet[k].n)}</tr>`).join("")}
+  <tr class="t"><td>Alt. pieces</td>${row(c=>c.dq)}</tr></table>`:`<p class="none">None.</p>`}
+  <div class="g2">${pf("Order placed by / date","")}${pf("Order cut-off",evs.map(e=>e.ev?.cutoff).find(Boolean))}</div>`;
+}
+document.getElementById("printBtn").onclick=()=>{
+  saveLocal();
+  let name,body,land=false;
+  if(cur==="all"){const d=combinedData();if(!d.evs.length){toast("Tick at least one event to print.");return}
+    name=`Canape combined order - ${d.evs.length} events`;body=printCombined();land=d.evs.length>4}
+  else{const e=E.ev||{};name=`Canape order - ${[e.date,e.name].filter(Boolean).join(" ")||"event"}`;body=printEvent(E)}
+  document.getElementById("pageSize").textContent=`@page{size:A4 ${land?"landscape":"portrait"};margin:14mm}`;
+  document.getElementById("printArea").innerHTML=`<div class="pg${land?" land":""}">${body}</div>`;
+  const t=document.title;document.title=name.replace(/[\\/:*?"<>|]/g,"-");
+  window.print();
+  setTimeout(()=>{document.title=t},1000);
+};
+</script>
+
+</body>
+</html>
