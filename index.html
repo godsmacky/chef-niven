@@ -166,50 +166,56 @@ td.muted{color:var(--muted)}
 #printArea table.combo td:last-child,#printArea table.combo th:last-child{background:#fff1cc}
 #printArea tr.t td{border-top:1.2px solid #1b2420;border-bottom:0;font-weight:700}#printArea .none{color:#6b7772;margin:2px 0}
 #printArea .ck{display:flex;justify-content:space-between;gap:12px;margin-top:12px;padding:7px 0;border-top:1px solid #e0e4e2;border-bottom:1px solid #e0e4e2}
-/* ---- vibrant layer + motion ---- */
-body{background:radial-gradient(900px 500px at 8% 12%,var(--blob1),transparent 70%),radial-gradient(800px 520px at 95% 30%,var(--blob2),transparent 70%),radial-gradient(700px 500px at 40% 100%,var(--blob3),transparent 70%),var(--bg);background-attachment:fixed}
+/* ---- professional layer + dancing hat ---- */
+body{background:var(--bg)}
 main{background:transparent}
-header{background:linear-gradient(115deg,var(--band),var(--band2),var(--band3),var(--band2),var(--band));background-size:300% 100%;animation:flow 18s ease-in-out infinite;position:relative;overflow:hidden;box-shadow:0 10px 30px -18px rgba(0,120,90,.7)}
-header::after{content:"";position:absolute;inset:auto -10% -60% auto;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.22),transparent 65%);animation:drift 14s ease-in-out infinite alternate;pointer-events:none}
-header .wrap{position:relative;z-index:1}
+header{background:linear-gradient(100deg,var(--band) 0%,var(--band2) 100%);position:relative;box-shadow:0 1px 0 rgba(0,0,0,.06),0 8px 24px -18px rgba(0,80,60,.6)}
+header .wrap{padding-block:16px}
 html,body::before{background:var(--band)}
-@keyframes flow{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-@keyframes drift{from{transform:translate(0,0)}to{transform:translate(-260px,-40px)}}
-.brand svg{animation:hatIn .9s cubic-bezier(.3,1.6,.5,1) both;transform-origin:50% 70%}
-.brand:hover svg{animation:wiggle .6s ease-in-out}
-@keyframes hatIn{from{transform:translateY(-14px) rotate(-12deg) scale(.7)}to{transform:none}}
-@keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-9deg)}75%{transform:rotate(9deg)}}
-header .btn.primary{background:linear-gradient(135deg,var(--sun),var(--sun2));border:0;box-shadow:0 6px 18px -8px rgba(255,120,0,.8);transition:transform .15s,box-shadow .15s}
-header .btn.primary:hover{transform:translateY(-2px);box-shadow:0 10px 22px -8px rgba(255,120,0,.9)}
-.card{border:0;box-shadow:0 1px 2px rgba(0,40,30,.05),0 12px 30px -20px rgba(0,60,45,.35);border-top:4px solid var(--tone,var(--green));animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
-.tone-green{--tone:var(--green)}.tone-berry{--tone:var(--berry)}.tone-sky{--tone:var(--sky)}
-.card h2{color:var(--tone,var(--green))}
-#view>*:nth-child(2){animation-delay:.06s}#view>*:nth-child(3){animation-delay:.12s}#view>*:nth-child(4){animation-delay:.18s}#view>*:nth-child(5){animation-delay:.24s}
-@keyframes rise{from{transform:translateY(14px);opacity:.01}to{transform:none;opacity:1}}
-.strip{border:0;box-shadow:0 12px 30px -20px rgba(0,60,45,.4);animation:rise .5s cubic-bezier(.2,.8,.2,1) .03s both}
-.cell.total{background:linear-gradient(135deg,var(--sun),var(--sun2))}
+.brand svg{width:48px;height:48px;overflow:visible}
+.brand .hat{transform-box:fill-box;transform-origin:50% 100%;animation:dance 3.2s ease-in-out infinite}
+.brand .ring{opacity:.55}
+@keyframes dance{
+  0%,46%,100%{transform:none}
+  6%{transform:translateY(-3px) rotate(-10deg)}
+  12%{transform:translateY(0) rotate(0) scale(1.06,.92)}
+  18%{transform:translateY(-3px) rotate(10deg)}
+  24%{transform:translateY(0) rotate(0) scale(1.06,.92)}
+  31%{transform:translateY(-6px) rotate(0) scale(.96,1.06)}
+  38%{transform:translateY(0) scale(1.04,.95)}
+  42%{transform:none}}
+.wm small{opacity:.75}
+header .btn{border-radius:8px}
+header .btn.primary{background:var(--sun);color:var(--sun-ink);border:0;box-shadow:0 1px 2px rgba(0,0,0,.15)}
+header .btn.primary:hover{filter:brightness(1.05)}
+.card{border:1px solid var(--line);border-radius:12px;box-shadow:0 1px 2px rgba(10,40,30,.04);animation:fadeIn .25s ease-out both}
+.strip{border:1px solid var(--line);box-shadow:0 1px 2px rgba(10,40,30,.04)}
+@keyframes fadeIn{from{opacity:.01}to{opacity:1}}
+.card h2{font:600 1rem var(--body);letter-spacing:0;text-transform:none;color:var(--ink);margin:0 0 14px;display:flex;align-items:center;gap:8px}
+.card h2::before{content:"";width:4px;height:16px;border-radius:2px;background:var(--green)}
+.cell label{font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.cell.total{background:var(--sun)}
 .cell.total output{display:inline-block;transform-origin:left center}
-.bump{animation:bump .45s cubic-bezier(.3,1.8,.5,1)}
-@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
-.evtab{transition:transform .15s,background .2s,box-shadow .2s}
-.evtab:hover{transform:translateY(-2px);box-shadow:0 8px 18px -12px rgba(0,60,45,.5)}
-.evtab[aria-current="true"]{background:linear-gradient(135deg,var(--green),var(--band2));border-color:transparent;box-shadow:0 8px 20px -10px rgba(0,150,110,.8)}
-.evtab.all b{color:var(--berry)}
-.hc{transition:transform .15s}.hc.pop{animation:bump .35s cubic-bezier(.3,1.8,.5,1)}
-.chip{transition:transform .15s,background .15s,border-color .15s}
-.chip:hover{transform:translateY(-2px);background:var(--berry-soft);border-color:var(--berry);color:var(--berry);border-style:solid}
-.chip{border-color:var(--berry);background:var(--berry-soft);color:var(--berry)}
-.tone-berry tr.new td{animation:rowIn .45s ease-out}
-@keyframes rowIn{from{background:var(--berry-soft)}to{background:transparent}}
-.seg button[aria-pressed="true"]{background:var(--sky)}
-.seg button[data-v="no"][aria-pressed="true"]{background:var(--warn)}
-td.out{color:var(--ink)}
+.bump{animation:bump .35s ease-out}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.06)}100%{transform:scale(1)}}
+.evtab{border-radius:8px;transition:background .15s,border-color .15s}
+.evtab[aria-current="true"]{background:var(--green);border-color:var(--green)}
+.evtab[aria-current="true"],.evtab[aria-current="true"] small,.evtab[aria-current="true"] b{color:var(--on-green)!important}
+.evtab.all b{color:var(--green)}
+th{font-weight:600;font-size:.68rem;letter-spacing:.05em;text-transform:uppercase}
 td.out[data-out^="tot-"]{color:var(--green)}
-tr.sum td.out[data-out="t-total"]{color:var(--sun-ink);background:linear-gradient(135deg,var(--sun),var(--sun2));border-radius:6px}
-td.grand,table.combo th:last-child{background:linear-gradient(135deg,var(--sun),var(--sun2))}
-.toast{animation:toastIn .3s cubic-bezier(.2,.9,.3,1.2)}
-@keyframes toastIn{from{transform:translate(-50%,20px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
-.btn:not(.primary):hover{transform:translateY(-1px)}.btn{transition:transform .15s,background .15s}
+tr.sum td{background:var(--green-soft)}
+tr.sum td:first-child{border-radius:8px 0 0 8px}tr.sum td:last-child{border-radius:0 8px 8px 0}
+tr.sum td.out[data-out="t-total"]{color:var(--green)}
+td.grand,table.combo th:last-child{background:var(--green-soft);color:var(--ink)}
+.chip{border:1px solid var(--line);border-style:solid;background:var(--paper);color:var(--ink);transition:border-color .15s,background .15s}
+.chip:hover{border-color:var(--green);background:var(--green-soft);color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--green);color:var(--on-green)}
+.seg button[data-v="no"][aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.btn{transition:background .15s}
+.toast{animation:toastIn .25s ease-out}
+@keyframes toastIn{from{transform:translate(-50%,10px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+.sitefoot{max-width:980px;margin:0 auto;padding:8px max(16px,env(safe-area-inset-right,0px)) 32px max(16px,env(safe-area-inset-left,0px));font-size:.75rem;color:var(--faint);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 <style id="pageSize">@page{size:A4 portrait;margin:14mm}</style>
@@ -220,10 +226,12 @@ td.grand,table.combo th:last-child{background:linear-gradient(135deg,var(--sun),
   <div class="wrap">
     <div class="brand" aria-label="Chef Niven">
       <svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="24" cy="24" r="22.5" stroke-width="1.5"/>
-        <path d="M16 30.5c-4.6-.4-6.4-6.6-2.6-9.2.2-5.6 6.4-8.3 10.6-5.2 4.2-3.1 10.4-.4 10.6 5.2 3.8 2.6 2 8.8-2.6 9.2"/>
-        <path d="M16 30.5h16v4.5H16z"/>
-        <path d="M21 24.5v6M27 24.5v6" stroke-width="1.5"/>
+        <circle class="ring" cx="24" cy="24" r="22.5" stroke-width="1.5"/>
+        <g class="hat">
+          <path d="M16 30.5c-4.6-.4-6.4-6.6-2.6-9.2.2-5.6 6.4-8.3 10.6-5.2 4.2-3.1 10.4-.4 10.6 5.2 3.8 2.6 2 8.8-2.6 9.2"/>
+          <path d="M16 30.5h16v4.5H16z"/>
+          <path d="M21 24.5v6M27 24.5v6" stroke-width="1.5"/>
+        </g>
       </svg>
       <div class="wm"><small>Chef</small><b>Niven</b></div>
     </div>
@@ -236,6 +244,7 @@ td.grand,table.combo th:last-child{background:linear-gradient(135deg,var(--sun),
 </header>
 <main><div class="wrap"><nav class="evbar" id="evbar" aria-label="Events"></nav><div id="view" style="display:flex;flex-direction:column;gap:16px"></div>
 <div class="devnote"><span>Events are saved in this browser on this device. Back up to keep a copy or move them to another device. <span id="backupNote"></span></span><span class="btns"><button class="btn" id="backupBtn" type="button">Back up</button><button class="btn" id="restoreBtn" type="button">Restore</button><input type="file" id="restoreFile" accept=".json,application/json" hidden></span></div></div></main>
+<footer class="sitefoot"><span>Chef Niven · Canapé orders</span><span>Quantities = guests × pieces per guest, plus extras</span></footer>
 <div id="printArea"></div>
 <div id="layer"></div>
 
@@ -289,7 +298,7 @@ const cell=(label,p,ph)=>`<div class="cell"><label for="${id(p)}">${label}</labe
 function eventView(){
   const dActive=DIETS.filter(([k])=>active(k)), dIdle=DIETS.filter(([k])=>!active(k)), e=E.ev||{};
   return `
-  <section class="card tone-green">
+  <section class="card">
     <div class="fields" style="grid-template-columns:1fr">${fld("Event","ev.name",{cls:"event-name",ph:"Event name"})}</div>
     <div class="fields">
       ${fld("Date","ev.date",{type:"date"})}${fld("Service time","ev.service",{ph:"18:00 – 20:00"})}${fld("Venue / room","ev.venue")}
@@ -301,7 +310,7 @@ function eventView(){
     <div class="cell total"><label>Total to prep</label><output id="bigTotal">0</output></div>
     <div class="strip-note">1 hr pre-dinner: 3–4 pcs per guest · 2 hr reception: 6–8 · 3 hr+ in place of a meal: 10–12</div>
   </section>
-  <section class="card tone-green">
+  <section class="card">
     <h2>Canapés</h2>
     <div class="tbl"><table>
       <tr><th class="l">Canapé</th><th>Pcs / guest</th><th>Standard</th><th>Dietary</th><th>Extra</th><th>To prep</th><th class="l">Allergens &amp; notes</th></tr>
@@ -318,7 +327,7 @@ function eventView(){
     <p class="hint" style="margin-top:12px">Faded numbers are calculated from guests × pieces per guest. Type over one to change it, and add any spares in Extra.</p>
     <p class="warnline" id="ppgCheck" hidden></p>
   </section>
-  <section class="card tone-berry">
+  <section class="card">
     <h2>Dietary requirements</h2>
     ${dActive.length?`<div class="tbl" style="margin-bottom:16px"><table>
       <tr><th class="l">Requirement</th><th>Guests</th><th class="l">Replaces</th><th class="l">Alternative</th><th>Alt. qty</th><th class="l">Names / table</th><th></th></tr>
@@ -339,7 +348,7 @@ function eventView(){
         <span class="seg" role="group">${["yes","no"].map(x=>`<button type="button" data-seg="labelled" data-v="${x}" aria-pressed="${e.labelled===x}">${x==="yes"?"Yes":"No"}</button>`).join("")}</span></div>
     </div>
   </section>
-  <section class="card tone-sky">
+  <section class="card">
     <h2>Sign-off</h2>
     <div class="fields">${fld("Completed by / date","ev.completed")}${fld("Chef sign-off / order placed","ev.signoff")}</div>
   </section>
@@ -357,7 +366,7 @@ function combinedView(){
   const {evs,cs,diets,guests,total}=combinedData();
   const sumRow=f=>cs.map(c=>`<td class="out">${nz(f(c))}</td>`).join("")+`<td class="out grand">${nz(cs.reduce((a,c)=>a+f(c),0))}</td>`;
   return `
-  <section class="card tone-sky">
+  <section class="card">
     <h2>Events in this order</h2>
     <div class="chips">${all.map(e=>`<label class="pick"><input type="checkbox" data-inc="${e.id}" ${excluded.has(e.id)?"":"checked"}> <span><b>${esc(evName(e))}</b> ${esc(shortDate(e.ev?.date)||"")}</span></label>`).join("")}</div>
   </section>
@@ -366,7 +375,7 @@ function combinedView(){
     <div class="cell"><label>Guests</label><span class="big">${fmt(guests)||0}</span></div>
     <div class="cell total"><label>Total to prep</label><output>${fmt(total)||0}</output></div>
   </section>
-  ${evs.length?`<section class="card tone-green">
+  ${evs.length?`<section class="card">
     <h2>Canapés to prep, by event</h2>
     <div class="tbl"><table class="combo">
       <tr><th class="l">Canapé</th>${evs.map(e=>`<th><span class="eh">${esc(evName(e))}</span><span class="ed">${esc(shortDate(e.ev?.date))}</span></th>`).join("")}<th>Total</th></tr>
@@ -375,7 +384,7 @@ function combinedView(){
       <tr><td class="muted">Guests</td>${sumRow(c=>c.G)}</tr>
     </table></div>
   </section>
-  <section class="card tone-berry">
+  <section class="card">
     <h2>Dietary guests, by event</h2>
     ${diets.length?`<div class="tbl"><table class="combo">
       <tr><th class="l">Requirement</th>${evs.map(e=>`<th><span class="eh">${esc(evName(e))}</span></th>`).join("")}<th>Total</th></tr>
