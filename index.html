@@ -272,11 +272,15 @@ const evName=e=>e.ev?.name||"Untitled event";
 /* ---------- calculations ---------- */
 function calc(e=E){
   const G=num(e.ev?.guests)||0, B=0, P=num(e.ev?.ppg);
-  const can={},tot={std:0,diet:0,buf:0,total:0};
-  CANAPES.forEach(([c])=>{const r=(e.can||{})[c]||{},pcs=num(r.pcs);
-    const stdCalc=pcs!=null&&G?Math.ceil(G*pcs):null, std=stdCalc??0, diet=0;
-    const bufCalc=null, buf=0, total=std;
-    can[c]={stdCalc,bufCalc,std,diet,buf,total};tot.std+=std;tot.diet+=diet;tot.buf+=buf;tot.total+=total;});
+  // Event total = guests × pieces per guest. A canapé with its own pcs/guest uses that;
+  // the rest of the event total is shared evenly across the other canapés (0 = leave out).
+  const can={},tot={std:0,diet:0,buf:0,total:0},target=P!=null&&G?Math.ceil(G*P):0,auto=[];let manual=0;
+  CANAPES.forEach(([c])=>{const pcs=num(((e.can||{})[c]||{}).pcs);
+    if(pcs!=null){const t=G?Math.ceil(G*pcs):0;can[c]={auto:false,total:t};manual+=t}else{can[c]={auto:true,total:0};auto.push(c)}});
+  const left=Math.max(0,target-manual),each=auto.length?Math.floor(left/auto.length):0;let extra=auto.length?left%auto.length:0;
+  auto.forEach(c=>{can[c].total=each+(extra>0?1:0);if(extra>0)extra--});
+  CANAPES.forEach(([c])=>{const r=can[c];r.std=r.total;r.diet=0;r.buf=0;tot.std+=r.total;tot.total+=r.total});
+  tot.target=target;tot.manual=manual;tot.autoCount=auto.length;
   const diet={};let dn=0,dq=0;
   DIETS.forEach(([k])=>{const r=(e.diet||{})[k]||{},n=num(r.n)||0,qCalc=n&&P?Math.ceil(n*P):null,q=num(r.qty)??qCalc??0;diet[k]={n,qCalc,q};if(activeIn(e,k)){dn+=n;dq+=q}});
   return {G,can,tot,diet,dn,dq};
@@ -316,12 +320,12 @@ function eventView(){
       <tr><th class="l">Canapé</th><th>Pcs / guest</th><th>To prep</th><th class="l">Allergens &amp; notes</th></tr>
       ${CANAPES.map(([c,n])=>{const hc=get(`can.${c}.hc`)||"";return `<tr>
         <td class="name">${n}<button class="hc" type="button" data-hc="${c}" data-v="${esc(hc)}" title="Tap to set hot or cold">${esc(hc)||"Hot / cold"}</button></td>
-        <td style="width:84px">${inp(`can.${c}.pcs`,{num:1,label:n+" pieces per guest"})}</td>
+        <td style="width:84px">${inp(`can.${c}.pcs`,{num:1,label:n+" pieces per guest",ph:"auto"})}</td>
         <td class="out" data-out="tot-${c}" style="width:110px"></td>
         <td style="min-width:170px">${inp(`can.${c}.notes`,{label:n+" allergens and notes",ph:"—"})}</td></tr>`}).join("")}
-      <tr class="sum"><td>Total pieces</td><td class="out" data-out="t-pcs"></td><td class="out" data-out="t-total"></td><td></td></tr>
+      <tr class="sum"><td>Total pieces</td><td></td><td class="out" data-out="t-total"></td><td></td></tr>
     </table></div>
-    <p class="hint" style="margin-top:12px">To prep = guests × pieces per guest, rounded up.</p>
+    <p class="hint" style="margin-top:12px">Total to prep = guests × pieces per guest, shared evenly across the canapés. To set one canapé yourself, type its own pieces per guest; type 0 to leave it out.</p>
     <p class="warnline" id="ppgCheck" hidden></p>
   </section>
   <section class="card">
@@ -404,12 +408,16 @@ const ph=(p,v)=>{const el=document.getElementById(id(p));if(el)el.placeholder=v!
 function refresh(){
   const c=calc();
   CANAPES.forEach(([k])=>out("tot-"+k,c.can[k].total));
-  out("t-pcs",CANAPES.reduce((a,[k])=>a+(num(E.can?.[k]?.pcs)||0),0));out("t-total",c.tot.total);
+  out("t-total",c.tot.total);
   DIETS.forEach(([k])=>ph(`diet.${k}.qty`,c.diet[k].qCalc));
   out("d-n",c.dn);out("d-q",c.dq);
   {const bt=document.getElementById("bigTotal"),nv=fmt(c.tot.total)||"0";if(bt.textContent!==nv){const was=bt.textContent;bt.textContent=nv;if(was&&was!=="0"||nv!=="0"){bt.classList.remove("bump");void bt.offsetWidth;bt.classList.add("bump")}}}
-  const P=num(E.ev?.ppg),sum=CANAPES.reduce((a,[k])=>a+(num(E.can?.[k]?.pcs)||0),0),el=document.getElementById("ppgCheck");
-  const bad=P&&sum&&Math.abs(P-sum)>0.01; el.hidden=!bad; if(bad)el.textContent=`Pieces per guest across the canapés add up to ${fmt(sum)}, but the event is set to ${fmt(P)}.`;
+  const el=document.getElementById("ppgCheck"),t=c.tot;
+  let msg="";
+  if(c.G&&num(E.ev?.ppg)==null&&!t.manual)msg="Enter pieces per guest above to work out the quantities.";
+  else if(t.target&&t.manual>t.target)msg=`The canapés you set yourself already need ${fmt(t.manual)} pieces, more than the event total of ${fmt(t.target)}.`;
+  else if(t.target&&!t.autoCount&&t.manual<t.target)msg=`Every canapé is set by hand and they add up to ${fmt(t.manual)}, less than the event total of ${fmt(t.target)}.`;
+  el.hidden=!msg;el.textContent=msg;
 }
 function go(to){cur=to;saveUI();render();window.scrollTo({top:0})}
 
@@ -523,7 +531,7 @@ function printEvent(ev){
   <div class="g3">${pf("Service time",e.service)}${pf("Venue / room",e.venue)}${pf("Client / contact",e.client)}</div>
   <div class="nums n3"><div><span>Guests</span><b>${v(e.guests)||"—"}</b></div><div><span>Pieces per guest</span><b>${v(e.ppg)||"—"}</b></div><div class="tt"><span>Total to prep</span><b>${nz(c.tot.total)||"—"}</b></div></div>
   <h4>Canapés</h4><table><tr><th class="l">Canapé</th><th class="l">H/C</th><th>Pcs/guest</th><th>To prep</th><th class="l">Allergens &amp; notes</th></tr>
-  ${CANAPES.map(([k,n])=>{const r=c.can[k],x=ev.can?.[k]||{};return `<tr><td class="nm">${n}</td><td>${v(x.hc)}</td><td class="n">${v(x.pcs)}</td><td class="n b">${nz(r.total)}</td><td>${v(x.notes)}</td></tr>`}).join("")}
+  ${CANAPES.map(([k,n])=>{const r=c.can[k],x=ev.can?.[k]||{};return `<tr><td class="nm">${n}</td><td>${v(x.hc)}</td><td class="n">${x.pcs!=null&&x.pcs!==""?v(x.pcs):(nz(r.total)?"auto":"")}</td><td class="n b">${nz(r.total)}</td><td>${v(x.notes)}</td></tr>`}).join("")}
   <tr class="t"><td>Total pieces</td><td></td><td></td><td class="n">${nz(c.tot.total)}</td><td></td></tr></table>
   <h4>Dietary requirements</h4>${dA.length?`<table><tr><th class="l">Requirement</th><th>Guests</th><th class="l">Replaces</th><th class="l">Alternative</th><th>Alt. qty</th><th class="l">Names / table</th></tr>
   ${dA.map(([k,a])=>{const x=ev.diet?.[k]||{};return `<tr><td class="nm">${a}</td><td class="n">${v(x.n)}</td><td>${v(x.rep)}</td><td>${v(x.alt)}</td><td class="n">${nz(c.diet[k].q)}</td><td>${v(x.notes)}</td></tr>`}).join("")}
