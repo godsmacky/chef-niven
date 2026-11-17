@@ -32,7 +32,6 @@ html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset
 [hidden]{display:none!important}
 body{margin:0;-webkit-text-size-adjust:100%;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--band)}
-html{background:var(--band)}
 header{background:var(--band);color:var(--on-band);margin-bottom:20px}
 .wrap{max-width:980px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 header .wrap{padding-block:22px 18px;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
@@ -146,7 +145,7 @@ td.muted{color:var(--muted)}
 #printArea{display:none}
 @media print{
   body{background:#fff!important;color:#1b2420}
-  body::before,header,main,#layer,.toast{display:none!important}
+  body::before,header,main,#layer,.toast,.sitefoot{display:none!important}
   html{padding:0}
   #printArea{display:block;font:9pt/1.4 Arial,Helvetica,sans-serif;color:#1b2420;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
@@ -171,12 +170,21 @@ body{background:var(--bg)}
 main{background:transparent}
 header{background:linear-gradient(100deg,var(--band) 0%,var(--band2) 100%);position:relative;box-shadow:0 1px 0 rgba(0,0,0,.06),0 8px 24px -18px rgba(0,80,60,.6)}
 header .wrap{padding-block:16px}
-html,body::before{background:var(--band)}
+body::before{background:var(--band)}
+html{background:var(--bg)}body{min-height:100vh}
 .brand{align-items:flex-end}
 .wm{flex-direction:row;align-items:baseline;gap:10px}
 .wm small{font-size:.7rem;letter-spacing:.34em}
-.nm{position:relative;display:inline-block;font:600 2.5rem var(--display);line-height:1;letter-spacing:-.01em;color:var(--on-band);transform-origin:50% 100%;animation:squash 2.8s ease-in-out infinite}
-.nm .hat{position:absolute;left:-.04em;bottom:84%;width:1.2em;height:auto;color:var(--on-band);transform-origin:50% 100%;animation:hop 2.8s ease-in-out infinite;overflow:visible}
+.wm .nm{position:relative;display:inline-block;font:600 2.5rem var(--display);line-height:1;letter-spacing:-.01em;color:var(--on-band)}
+.wm .nl{position:relative;display:inline-block;transform-origin:50% 100%;animation:squash 2.8s ease-in-out infinite}
+.wm .hat{position:absolute;left:50%;margin-left:-.6em;bottom:84%;width:1.2em;height:auto;color:var(--on-band);transform-origin:50% 100%;animation:hop 2.8s ease-in-out infinite;overflow:visible}
+.wm .splash{position:absolute;left:.38em;top:.05em;width:0;height:0;pointer-events:none}
+.wm .splash i{position:absolute;left:-4px;top:-4px;width:9px;height:9px;border-radius:50%;background:var(--c);opacity:0;animation:splat 2.8s ease-out infinite}
+.wm .splash i.leaf{width:13px;height:7px;border-radius:0 100% 0 100%}
+.wm .splash i.cheese{width:8px;height:8px;border-radius:1px}
+.wm .splash i.puff{left:-14px;top:-6px;width:28px;height:12px;border-radius:50%;background:none;border:2px solid rgba(255,255,255,.75);animation-name:puff}
+@keyframes splat{0%,35%{opacity:0;transform:translate(0,0) scale(.4) rotate(0)}38%{opacity:1}58%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1) rotate(var(--r,0deg))}100%{opacity:0}}
+@keyframes puff{0%,35%{opacity:0;transform:scale(.3)}38%{opacity:.9}52%{opacity:0;transform:scale(1.6,1.2)}100%{opacity:0}}
 @keyframes hop{
   0%,100%{transform:none}
   8%{transform:scale(1.1,.88)}
@@ -186,10 +194,10 @@ html,body::before{background:var(--band)}
   44%{transform:translateY(-6px) scale(.97,1.04)}
   52%{transform:none}}
 @keyframes squash{
-  0%,34%,60%,100%{transform:none}
-  37%{transform:scale(1.08,.78)}
-  45%{transform:scale(.97,1.06)}
-  52%{transform:none}}
+  0%,34%,62%,100%{transform:none}
+  37%{transform:scale(1.22,.68)}
+  45%{transform:scale(.94,1.1)}
+  53%{transform:none}}
 header .wrap{padding-block:46px 16px}
 @media (max-width:560px){.nm{font-size:2.1rem}header .wrap{padding-block:40px 14px}}
 .wm small{opacity:.75}
@@ -238,6 +246,25 @@ input.itemname{font-weight:500;min-width:9em}
 .strip.five{grid-template-columns:repeat(4,1fr) 1.3fr}
 @media (max-width:680px){.strip.five{grid-template-columns:1fr 1fr}}
 @media (max-width:680px){.strip.four{grid-template-columns:1fr 1fr}}
+.pagenav{display:inline-flex;gap:4px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:4px;margin-bottom:12px}
+.pagenav button{font:600 .86rem var(--body);border:0;background:transparent;color:var(--muted);padding:7px 16px;border-radius:7px;cursor:pointer}
+.pagenav button[aria-current="true"]{background:var(--green);color:var(--on-green)}
+.pagenav button:not([aria-current="true"]):hover{background:var(--hover);color:var(--ink)}
+.subhead{font:600 .9rem var(--body);margin:20px 0 10px;color:var(--ink)}
+td.code{font-weight:600;color:var(--muted);text-align:center}
+textarea{font:inherit;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;resize:vertical;min-height:56px}
+textarea:focus-visible{outline:2px solid var(--green);outline-offset:1px}
+.btn.primary-soft{background:var(--green);border-color:var(--green);color:var(--on-green);font-weight:600}
+.pill{display:inline-block;font:600 .72rem var(--body);border-radius:99px;padding:3px 10px}
+.pill[data-state="ok"]{background:var(--green-soft);color:var(--green)}
+.pill[data-state="over"]{background:var(--warn);color:#fff}
+.pill[data-state="loss"]{background:var(--ink);color:var(--paper)}
+.gpsum{display:flex;gap:10px 22px;flex-wrap:wrap;margin-top:12px;font-size:.88rem;color:var(--muted)}
+.gpsum b{color:var(--ink)}.gpsum .bad{color:var(--warn);font-weight:600}
+td.muted{color:var(--muted)}
+@media (max-width:680px){.strip.dyn{grid-template-columns:1fr 1fr!important}}
+#printArea .notesbox{border:1px solid #ccc;border-radius:4px;min-height:40px;padding:6px 8px}
+#printArea .pnote{font-style:italic;font-size:8pt;color:#555;margin-top:12px}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 <style id="pageSize">@page{size:A4 portrait;margin:14mm}</style>
@@ -247,7 +274,7 @@ input.itemname{font-weight:500;min-width:9em}
 <header>
   <div class="wrap">
     <div class="brand" aria-label="Chef Niven">
-      <div class="wm"><small>Chef</small><span class="nm">Niven<svg class="hat" viewBox="8 11 32 25.5" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 30.5c-4.6-.4-6.4-6.6-2.6-9.2.2-5.6 6.4-8.3 10.6-5.2 4.2-3.1 10.4-.4 10.6 5.2 3.8 2.6 2 8.8-2.6 9.2"/><path d="M16 30.5h16v4.5H16z"/><path d="M21 24.5v6M27 24.5v6" stroke-width="1.5"/></svg></span></div>
+      <div class="wm"><small>Chef</small><span class="nm"><span class="nl">N<svg class="hat" viewBox="8 11 32 25.5" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 30.5c-4.6-.4-6.4-6.6-2.6-9.2.2-5.6 6.4-8.3 10.6-5.2 4.2-3.1 10.4-.4 10.6 5.2 3.8 2.6 2 8.8-2.6 9.2"/><path d="M16 30.5h16v4.5H16z"/><path d="M21 24.5v6M27 24.5v6" stroke-width="1.5"/></svg></span><span class="splash" aria-hidden="true"><i class="puff"></i><i class="" style="--c:#ff5a3c;--dx:-38px;--dy:-19px;--r:0deg"></i><i class="" style="--c:#ff5a3c;--dx:36px;--dy:-23px;--r:47deg"></i><i class="cheese" style="--c:#ffd84d;--dx:-49px;--dy:4px;--r:94deg"></i><i class="leaf" style="--c:#c7f774;--dx:48px;--dy:1px;--r:141deg"></i><i class="" style="--c:#ff8a5c;--dx:-19px;--dy:-36px;--r:8deg"></i><i class="leaf" style="--c:#c7f774;--dx:19px;--dy:-39px;--r:55deg"></i><i class="cheese" style="--c:#ffd84d;--dx:3px;--dy:-45px;--r:102deg"></i><i class="" style="--c:#ff5a3c;--dx:-58px;--dy:-8px;--r:149deg"></i></span>iven</span></div>
     </div>
     <div class="actions">
       <span class="status" id="status" aria-live="polite">Loading…</span>
@@ -256,8 +283,8 @@ input.itemname{font-weight:500;min-width:9em}
     </div>
   </div>
 </header>
-<main><div class="wrap"><nav class="evbar" id="evbar" aria-label="Events"></nav><div id="view" style="display:flex;flex-direction:column;gap:16px"></div>
-<div class="devnote"><span>Events are saved in this browser on this device. Back up to keep a copy or move them to another device. <span id="backupNote"></span></span><span class="btns"><button class="btn" id="backupBtn" type="button">Back up</button><button class="btn" id="restoreBtn" type="button">Restore</button><input type="file" id="restoreFile" accept=".json,application/json" hidden></span></div></div></main>
+<main><div class="wrap"><nav class="pagenav" id="pagenav" aria-label="Pages"></nav><nav class="evbar" id="evbar" aria-label="Events"></nav><div id="view" style="display:flex;flex-direction:column;gap:16px"></div>
+<div class="devnote"><span>Events and GP dishes are saved in this browser on this device. Back up to keep a copy or move them to another device. <span id="backupNote"></span></span><span class="btns"><button class="btn" id="backupBtn" type="button">Back up</button><button class="btn" id="restoreBtn" type="button">Restore</button><input type="file" id="restoreFile" accept=".json,application/json" hidden></span></div></div></main>
 <footer class="sitefoot"><span>Chef Niven · Event orders</span><span>Canapés = guests × pieces per guest</span></footer>
 <div id="printArea"></div>
 <div id="layer"></div>
@@ -296,7 +323,8 @@ function calc(e=E){
   const mc=course("mains"),dc=course("desserts"),mains=mc.rows,mainTotal=mc.total,desserts=dc.rows,dessertTotal=dc.total;
   const diet={};let dn=0,dq=0;
   DIETS.forEach(([k])=>{const r=(e.diet||{})[k]||{},n=num(r.n)||0,qCalc=n&&P?Math.ceil(n*P):null,q=num(r.qty)??qCalc??0;diet[k]={n,qCalc,q};if(activeIn(e,k)){dn+=n;dq+=q}});
-  return {G,can,tot,mains,mainTotal,desserts,dessertTotal,diet,dn,dq};
+  const pizza=pizzaCalc(e);
+  return {G,can,tot,mains,mainTotal,desserts,dessertTotal,pizza,pizzaAll:pizza.all,pizzaTotal:pizza.total,diet,dn,dq};
 }
 
 /* ---------- event bar ---------- */
@@ -345,6 +373,7 @@ function eventView(){
   </section>
   ${courseSection("mains")}
   ${courseSection("desserts")}
+  ${pizzaSection()}
   <section class="card">
     <h2>Dietary requirements</h2>
     ${dActive.length?`<div class="tbl" style="margin-bottom:16px"><table>
@@ -404,12 +433,13 @@ function unionRows(evs,cs,listKey,valKey){
 function combinedData(){
   const evs=sorted().filter(e=>!excluded.has(e.id)), cs=evs.map(e=>calc(e));
   const diets=DIETS.filter(([k])=>evs.some(e=>activeIn(e,k)));
-  return {evs,cs,diets,canRows:unionRows(evs,cs,"can","total"),mainRows:unionRows(evs,cs,"mains","portions"),dessertRows:unionRows(evs,cs,"desserts","portions"),dessertTotal:cs.reduce((a,c)=>a+c.dessertTotal,0),
+  return {evs,cs,diets,canRows:unionRows(evs,cs,"can","total"),mainRows:unionRows(evs,cs,"mains","portions"),dessertRows:unionRows(evs,cs,"desserts","portions"),dessertTotal:cs.reduce((a,c)=>a+c.dessertTotal,0),pizzaRows:unionRows(evs,cs,"pizzaAll","qty"),pizzaTotal:cs.reduce((a,c)=>a+c.pizzaTotal,0),
     guests:cs.reduce((a,c)=>a+c.G,0),total:cs.reduce((a,c)=>a+c.tot.total,0),mainTotal:cs.reduce((a,c)=>a+c.mainTotal,0)};
 }
 function combinedView(){
   const all=sorted(); if(!all.length)return `<section class="card"><p class="empty">No events yet. Add one with “+ New event”.</p></section>`;
-  const {evs,cs,diets,canRows,mainRows,dessertRows,guests,total,mainTotal,dessertTotal}=combinedData();
+  const {evs,cs,diets,canRows,mainRows,dessertRows,pizzaRows,guests,total,mainTotal,dessertTotal,pizzaTotal}=combinedData();
+  const ncell=3+(mainTotal?1:0)+(dessertTotal?1:0)+(pizzaTotal?1:0);
   const sumRow=f=>cs.map(c=>`<td class="out">${nz(f(c))}</td>`).join("")+`<td class="out grand">${nz(cs.reduce((a,c)=>a+f(c),0))}</td>`;
   const valRow=r=>r.vals.map(x=>`<td class="out">${nz(x)}</td>`).join("")+`<td class="out grand">${nz(r.vals.reduce((a,b)=>a+b,0))}</td>`;
   const head=evs.map(e=>`<th><span class="eh">${esc(evName(e))}</span><span class="ed">${esc(shortDate(e.ev?.date))}</span></th>`).join("");
@@ -418,11 +448,12 @@ function combinedView(){
     <h2>Events in this order</h2>
     <div class="chips">${all.map(e=>`<label class="pick"><input type="checkbox" data-inc="${e.id}" ${excluded.has(e.id)?"":"checked"}> <span><b>${esc(evName(e))}</b> ${esc(shortDate(e.ev?.date)||"")}</span></label>`).join("")}</div>
   </section>
-  <section class="strip ${["three","four","five"][(mainTotal?1:0)+(dessertTotal?1:0)]}" aria-label="Combined numbers">
+  <section class="strip dyn" style="grid-template-columns:repeat(${ncell-1},1fr) 1.3fr" aria-label="Combined numbers">
     <div class="cell"><label>Events</label><span class="big">${evs.length}</span></div>
     <div class="cell"><label>Guests</label><span class="big">${fmt(guests)||0}</span></div>
     ${mainTotal?`<div class="cell"><label>Main portions</label><span class="big">${fmt(mainTotal)}</span></div>`:""}
     ${dessertTotal?`<div class="cell"><label>Dessert portions</label><span class="big">${fmt(dessertTotal)}</span></div>`:""}
+    ${pizzaTotal?`<div class="cell"><label>Pizzas</label><span class="big">${fmt(pizzaTotal)}</span></div>`:""}
     <div class="cell total"><label>Canapés to prep</label><output>${fmt(total)||0}</output></div>
   </section>
   ${evs.length?`<section class="card">
@@ -450,6 +481,14 @@ function combinedView(){
       <tr class="sum"><td>Total portions</td>${sumRow(c=>c.dessertTotal)}</tr>
     </table></div>
   </section>`:""}
+  ${pizzaRows.length?`<section class="card">
+    <h2>Pizzas, by event</h2>
+    <div class="tbl"><table class="combo">
+      <tr><th class="l">Pizza</th>${head}<th>Total</th></tr>
+      ${pizzaRows.map(r=>`<tr><td class="name">${esc(r.name)}</td>${valRow(r)}</tr>`).join("")}
+      <tr class="sum"><td>Total pizzas</td>${sumRow(c=>c.pizzaTotal)}</tr>
+    </table></div>
+  </section>`:""}
   <section class="card">
     <h2>Dietary guests, by event</h2>
     ${diets.length?`<div class="tbl"><table class="combo">
@@ -460,8 +499,160 @@ function combinedView(){
   </section>`:""}`;
 }
 
+/* ---------- pizza order (per event) ---------- */
+const PIZZA_DIETS=[["vegan","Vegan"],["veg","Vegetarian"],["gf","Gluten-free"],["df","Dairy-free"]];
+function pizzaCalc(e){
+  const P=e.pizza;if(!P?.on)return {on:false,rows:[],dietRows:[],all:[],total:0,pkg:null};
+  const rows=(P.rows||[]).map(r=>({name:r.name||"",qty:num(r.qty)||0}));
+  const dietRows=PIZZA_DIETS.map(([k,a])=>({name:a+" pizza",qty:num(P.diet?.[k]?.qty)||0}));
+  const total=rows.reduce((a,r)=>a+r.qty,0)+dietRows.reduce((a,r)=>a+r.qty,0);
+  return {on:true,rows,dietRows,all:rows.concat(dietRows.filter(r=>r.qty)),total,pkg:num(P.pkg)};
+}
+function pizzaSection(){
+  const P=E.pizza;
+  if(!P?.on)return `<section class="card"><h2>Pizza order</h2><p class="empty">No pizza order for this event.</p>
+    <div class="addrow"><button class="btn add" type="button" id="addPizza">+ Add pizza order</button></div></section>`;
+  const rows=P.rows||[];
+  return `<section class="card">
+    <h2>Pizza order <span class="count" id="pzCount"></span></h2>
+    <div class="fields">${fld("Package size (pizzas)","pizza.pkg",{num:1,ph:"12"})}${fld("Pizza time","pizza.time",{ph:"19:30"})}</div>
+    <div class="tbl" style="margin-top:14px">${rows.length?`<table>
+      <tr><th style="width:44px">No.</th><th class="l">Pizza selection</th><th>Quantity</th><th class="l">Requirements</th><th></th></tr>
+      ${rows.map((r,i)=>`<tr><td class="code">${i+1}</td>
+        <td>${inp(`pizza.rows.${i}.name`,{cls:"itemname",label:"Pizza selection",ph:"Pizza"})}</td>
+        <td style="width:96px">${inp(`pizza.rows.${i}.qty`,{num:1,label:(r.name||"Pizza")+" quantity"})}</td>
+        <td style="min-width:160px">${inp(`pizza.rows.${i}.req`,{label:(r.name||"Pizza")+" requirements",ph:"—"})}</td>
+        <td style="width:36px"><button class="x" type="button" data-rmitem="pizza.rows:${i}" aria-label="Remove ${esc(r.name||"pizza")}">−</button></td></tr>`).join("")}
+    </table>`:`<p class="empty">No pizzas yet.</p>`}</div>
+    <div class="addrow"><button class="btn add" type="button" data-additem="pizza.rows">+ Add pizza</button></div>
+    <h3 class="subhead">Dietary pizzas</h3>
+    <div class="tbl"><table>
+      <tr><th class="l">Dietary type</th><th>Quantity</th><th class="l">Time (if required)</th></tr>
+      ${PIZZA_DIETS.map(([k,a])=>`<tr><td class="name">${a}</td>
+        <td style="width:96px">${inp(`pizza.diet.${k}.qty`,{num:1,label:a+" pizzas"})}</td>
+        <td>${inp(`pizza.diet.${k}.time`,{label:a+" pizza time",ph:"—"})}</td></tr>`).join("")}
+      <tr class="sum"><td>Total pizzas</td><td class="out" data-out="pz-total"></td><td></td></tr>
+    </table></div>
+    <p class="warnline" id="pzCheck" hidden></p>
+    <div class="field" style="margin-top:14px"><label for="${id("pizza.notes")}">Special dietary notes</label>
+      <textarea id="${id("pizza.notes")}" data-k="pizza.notes" rows="2" placeholder="Cross-contamination, allergies, labelling…">${esc(get("pizza.notes"))}</textarea></div>
+    <div class="fields" style="margin-top:6px">${fld("Checked by","pizza.checked")}${fld("Time checked","pizza.checkedTime")}</div>
+    <div class="foot-actions" style="margin-top:14px"><button class="btn ghost danger-text" type="button" id="rmPizza">Remove pizza order</button><button class="btn primary-soft" type="button" id="printPizza">Print pizza sheet</button></div>
+  </section>`;
+}
+function printPizza(ev){
+  const e=ev.ev||{},P=ev.pizza||{},pc=pizzaCalc(ev),rows=P.rows||[],n=Math.max(rows.length,num(P.pkg)||0,8);
+  return `${phead("Pizza package order",v(niceDate(e.date)))}
+  <div class="ev">${v(e.name)||"&nbsp;"}</div>
+  <div class="g3">${pf("Package",P.pkg?v(P.pkg)+" pizzas":"")}${pf("Pizza time",P.time||e.service)}${pf("Venue / room",e.venue)}</div>
+  <h4>Pizza selection</h4><table><tr><th style="width:30px">No.</th><th class="l">Pizza selection</th><th>Quantity</th><th class="l">Requirements</th></tr>
+  ${Array.from({length:n},(_,i)=>{const r=rows[i]||{};return `<tr><td class="n">${i+1}</td><td class="nm">${v(r.name)}</td><td class="n b">${v(r.qty)}</td><td>${v(r.req)}</td></tr>`}).join("")}</table>
+  <h4>Dietary requirements</h4><table><tr><th class="l">Dietary type</th><th>Quantity</th><th class="l">Time (if required)</th></tr>
+  ${PIZZA_DIETS.map(([k,a])=>{const x=P.diet?.[k]||{};return `<tr><td class="nm">${a}</td><td class="n b">${v(x.qty)}</td><td>${v(x.time)}</td></tr>`}).join("")}</table>
+  <h4>Special dietary notes</h4><div class="notesbox">${v(P.notes).replace(/\n/g,"<br>")||"&nbsp;"}</div>
+  <div class="g3" style="margin-top:12px"><div><div class="pl">Total pizzas</div><div class="pv"><b>${nz(pc.total)||""}</b>${pc.pkg?` of ${fmt(pc.pkg)}`:""}</div></div>${pf("Checked by",P.checked)}${pf("Time",P.checkedTime)}</div>
+  <p class="pnote">Please confirm dietary requirements and any cross-contamination concerns before preparation.</p>`;
+}
+
+/* ---------- GP calculator (its own page) ---------- */
+const GPK="chef-niven-gp";
+let GP={cap:"73",tax:"",rows:[]};
+try{const g=JSON.parse(localStorage.getItem(GPK)||"null");if(g&&typeof g==="object")GP={...GP,...g,rows:Array.isArray(g.rows)?g.rows:[]}}catch{}
+const pget=(root,p)=>p.split(".").reduce((o,k)=>o==null?undefined:o[k],root);
+function pset(root,p,v){const ks=p.split(".");let o=root;ks.slice(0,-1).forEach(k=>{if(typeof o[k]!=="object"||o[k]===null)o[k]={};o=o[k]});o[ks.at(-1)]=v}
+function saveGP(){try{localStorage.setItem(GPK,JSON.stringify(GP));status("Saved on this device")}catch{status("Not saved: browser storage is blocked")}}
+const money=n=>n==null||!isFinite(n)?"":n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const pct=n=>n==null||!isFinite(n)?"":(Math.round(n*10)/10).toLocaleString()+"%";
+const gin=(p,o={})=>`<input id="g-${p.replace(/\./g,"-")}" data-g="${p}" value="${esc(pget(GP,p))}" class="${o.num?"num":""} ${o.cls||""}" ${o.num?'inputmode="decimal"':""} ${o.ph?`placeholder="${esc(o.ph)}"`:""} aria-label="${esc(o.label||p)}" autocomplete="off">`;
+const gfld=(label,p,o={})=>`<div class="field"><label for="g-${p.replace(/\./g,"-")}">${label}</label>${gin(p,{...o,label})}</div>`;
+function gpCap(){const c=num(GP.cap);return c==null?73:Math.min(Math.max(c,0),99)}
+function gpRow(r){
+  const cap=gpCap(),tax=num(GP.tax)||0,cost=num(r.cost),price=num(r.price);
+  const capEx=cost!=null?cost/(1-cap/100):null,capInc=capEx!=null?capEx*(1+tax/100):null;
+  if(cost==null||price==null||price<=0)return {cost,price,capEx,capInc,gp:null,profit:null,state:""};
+  const ex=price/(1+tax/100),gp=(ex-cost)/ex*100,profit=ex-cost;
+  return {cost,price,ex,capEx,capInc,gp,profit,state:gp<0?"loss":gp>cap+0.05?"over":"ok"};
+}
+function gpView(){
+  const cap=gpCap(),tax=num(GP.tax)||0;
+  return `
+  <section class="card">
+    <h2>Quick price check</h2>
+    <p class="hint" style="margin:-6px 0 12px">Enter a dish cost to get the selling price. GP can't go over ${pct(cap)}.</p>
+    <div class="fields">${gfld("Dish cost","q.cost",{num:1,ph:"0.00"})}${gfld("Target GP %","q.gp",{num:1,ph:String(cap)})}</div>
+    <div class="strip three gpstrip" style="margin-top:14px">
+      <div class="cell"><label>Sell price${tax?" (ex tax)":""}</label><span class="big" data-gout="q-ex">—</span></div>
+      <div class="cell"><label>${tax?`Sell price (inc ${fmt(tax)}% tax)`:"Profit per dish"}</label><span class="big" data-gout="q-inc">—</span></div>
+      <div class="cell total"><label>GP</label><output data-gout="q-gp">—</output></div>
+    </div>
+    <p class="warnline" id="qCheck" hidden></p>
+  </section>
+  <section class="card">
+    <h2>Dish GP <span class="count">${GP.rows.length}</span></h2>
+    <div class="fields" style="margin-bottom:12px">${gfld("GP cap %","cap",{num:1,ph:"73"})}${gfld("Tax included in sell price %","tax",{num:1,ph:"0 (e.g. 10 for GST)"})}</div>
+    ${GP.rows.length?`<div class="tbl"><table>
+      <tr><th class="l">Dish</th><th>Cost</th><th>Sell price</th><th>GP</th><th>Profit</th><th>Price at ${pct(cap)}</th><th class="l">Status</th><th></th></tr>
+      ${GP.rows.map((r,i)=>`<tr>
+        <td>${gin(`rows.${i}.name`,{cls:"itemname",label:"Dish name",ph:"Dish name"})}</td>
+        <td style="width:96px">${gin(`rows.${i}.cost`,{num:1,label:(r.name||"Dish")+" cost",ph:"0.00"})}</td>
+        <td style="width:104px">${gin(`rows.${i}.price`,{num:1,label:(r.name||"Dish")+" sell price",ph:"0.00"})}</td>
+        <td class="out" data-gout="gp-${i}" style="width:80px"></td>
+        <td class="out" data-gout="pr-${i}" style="width:84px"></td>
+        <td class="out muted" data-gout="cap-${i}" style="width:110px"></td>
+        <td style="width:110px"><span class="pill" data-gout="st-${i}"></span></td>
+        <td style="width:36px"><button class="x" type="button" data-grm="${i}" aria-label="Remove ${esc(r.name||"dish")}">−</button></td></tr>`).join("")}
+    </table></div>`:`<p class="empty">No dishes yet. Add a dish to check its GP.</p>`}
+    <div class="addrow"><button class="btn add" type="button" id="gAdd">+ Add dish</button></div>
+    <p class="hint" style="margin-top:12px">GP = (sell price${tax?" ex tax":""} − cost) ÷ sell price${tax?" ex tax":""}. “Price at ${pct(cap)}” is the most you can charge before going over the cap.</p>
+    <div class="gpsum" id="gpSum"></div>
+  </section>`;
+}
+function gpRefresh(){
+  const cap=gpCap(),tax=num(GP.tax)||0,set=(k,t)=>{const el=document.querySelector(`[data-gout="${k}"]`);if(el)el.textContent=t};
+  // quick check
+  const qc=num(GP.q?.cost),qg0=num(GP.q?.gp),qg=qg0==null?cap:Math.min(qg0,cap),qw=document.getElementById("qCheck");
+  if(qc!=null&&qc>0&&qg<100){const ex=qc/(1-qg/100);set("q-ex",money(ex));set("q-inc",tax?money(ex*(1+tax/100)):money(ex-qc));set("q-gp",pct(qg))}
+  else{set("q-ex","—");set("q-inc","—");set("q-gp",qg0!=null?pct(qg):pct(cap))}
+  if(qw){const m=qg0!=null&&qg0>cap?`GP can't go over ${pct(cap)}, so ${pct(cap)} is used.`:"";qw.hidden=!m;qw.textContent=m}
+  // dishes
+  let n=0,sum=0,over=0,loss=0;
+  GP.rows.forEach((r,i)=>{const x=gpRow(r);
+    set("gp-"+i,pct(x.gp));set("pr-"+i,money(x.profit));set("cap-"+i,money(x.capInc));
+    const el=document.querySelector(`[data-gout="st-${i}"]`);if(el){el.dataset.state=x.state;el.textContent=x.state==="over"?`Over ${pct(cap)}`:x.state==="loss"?"Loss":x.state==="ok"?"OK":""}
+    if(x.gp!=null){n++;sum+=x.gp;if(x.state==="over")over++;if(x.state==="loss")loss++}});
+  const s=document.getElementById("gpSum");
+  if(s)s.innerHTML=n?`<span>Average GP <b>${pct(sum/n)}</b></span><span>${n} dish${n===1?"":"es"} priced</span>${over?`<span class="bad">${over} over ${pct(cap)}</span>`:""}${loss?`<span class="bad">${loss} at a loss</span>`:""}`:"";
+}
+function printGP(){
+  const cap=gpCap(),tax=num(GP.tax)||0;
+  return `${phead("GP sheet",new Date().toLocaleDateString(undefined,{day:"numeric",month:"long",year:"numeric"}))}
+  <div class="g3" style="margin-top:12px">${pf("GP cap",pct(cap))}${pf("Tax in sell price",tax?fmt(tax)+"%":"None")}${pf("Checked by","")}</div>
+  <h4>Dishes</h4><table><tr><th class="l">Dish</th><th>Cost</th><th>Sell price</th><th>GP</th><th>Profit</th><th>Price at ${pct(cap)}</th><th class="l">Status</th></tr>
+  ${GP.rows.map(r=>{const x=gpRow(r);return `<tr><td class="nm">${v(r.name)}</td><td class="n">${money(x.cost)}</td><td class="n">${money(x.price)}</td><td class="n b">${pct(x.gp)}</td><td class="n">${money(x.profit)}</td><td class="n">${money(x.capInc)}</td><td>${x.state==="over"?"Over "+pct(cap):x.state==="loss"?"Loss":x.state==="ok"?"OK":""}</td></tr>`}).join("")}</table>`;
+}
+
+/* ---------- page switching ---------- */
+let page=location.hash==="#gp"?"gp":"events";
+function renderNav(){
+  document.getElementById("pagenav").innerHTML=[["events","Events"],["gp","GP calculator"]].map(([k,t])=>`<button type="button" data-page="${k}" aria-current="${page===k}">${t}</button>`).join("");
+}
+function setPage(p){page=p;try{history.replaceState(null,"",p==="gp"?"#gp":location.pathname+location.search)}catch{}render();window.scrollTo({top:0})}
+window.addEventListener("hashchange",()=>{const p=location.hash==="#gp"?"gp":"events";if(p!==page){page=p;render()}});
+document.addEventListener("input",ev=>{const t=ev.target,k=t.dataset?.g;if(k==null)return;pset(GP,k,t.value);
+  if(k==="cap"||k==="tax"){const f=document.activeElement?.id;render();const el=f&&document.getElementById(f);if(el){el.focus();const L=el.value.length;try{el.setSelectionRange(L,L)}catch{}}}
+  else gpRefresh();saveGP()});
+document.addEventListener("click",ev=>{const t=ev.target.closest("button");if(!t||t.closest(".dialog"))return;
+  if(t.dataset.page){setPage(t.dataset.page);return}
+  if(t.id==="gAdd"){GP.rows.push({id:itemId(),name:""});saveGP();render();const ins=document.querySelectorAll('input[data-g$=".name"]');ins[ins.length-1]?.focus();return}
+  if(t.dataset.grm!=null){const r=GP.rows.splice(+t.dataset.grm,1)[0];saveGP();render();toast(`Removed ${r.name||"dish"}`);return}
+});
+
 /* ---------- render ---------- */
 function render(){
+  renderNav();
+  const gp=page==="gp";
+  document.getElementById("evbar").hidden=gp;document.getElementById("newBtn").hidden=gp;
+  if(gp){E=null;document.getElementById("view").innerHTML=gpView();document.getElementById("printBtn").textContent="Print GP sheet";gpRefresh();return}
   renderBar();
   E=cur==="all"?null:EV[cur];
   document.getElementById("view").innerHTML=cur==="all"?combinedView():eventView();
@@ -478,6 +669,8 @@ function refresh(){
     rows.forEach((m,i)=>ph(`${list}.${i}.portions`,m.auto));out(`${list}-total`,total);
     const w=document.getElementById(list+"Check");
     if(w){const msg=c.G&&rows.length>1&&total&&total!==c.G?`${COURSES[list].one} portions add up to ${fmt(total)} for ${fmt(c.G)} guests.`:"";w.hidden=!msg;w.textContent=msg}});
+  if(c.pizza.on){out("pz-total",c.pizza.total);const pc=document.getElementById("pzCount");if(pc)pc.textContent=c.pizza.pkg?`${fmt(c.pizza.total)} of ${fmt(c.pizza.pkg)}`:fmt(c.pizza.total)||"0";
+    const w=document.getElementById("pzCheck");if(w){const m=c.pizza.pkg&&c.pizza.total&&c.pizza.total!==c.pizza.pkg?`Pizzas add up to ${fmt(c.pizza.total)}; the package is ${fmt(c.pizza.pkg)}.`:"";w.hidden=!m;w.textContent=m}}
   DIETS.forEach(([k])=>ph(`diet.${k}.qty`,c.diet[k].qCalc));
   out("d-n",c.dn);out("d-q",c.dq);
   {const bt=document.getElementById("bigTotal"),nv=fmt(c.tot.total)||"0";if(bt.textContent!==nv){const was=bt.textContent;bt.textContent=nv;if(was&&was!=="0"||nv!=="0"){bt.classList.remove("bump");void bt.offsetWidth;bt.classList.add("bump")}}}
@@ -485,7 +678,7 @@ function refresh(){
   if(el){const msg=c.G&&num(E.ev?.ppg)==null&&!c.tot.total&&c.can.length?"Enter pieces per guest above to work out the quantities.":"";el.hidden=!msg;el.textContent=msg}
   const P=num(E.ev?.ppg);c.can.forEach((r,i)=>ph(`canapes.${i}.pcs`,P));
 }
-function go(to){cur=to;saveUI();render();window.scrollTo({top:0})}
+function go(to){cur=to;if(page!=="events"){page="events";try{history.replaceState(null,"",location.pathname+location.search)}catch{}}saveUI();render();window.scrollTo({top:0})}
 
 /* ---------- events: create / delete ---------- */
 const itemId=()=>"i"+Math.random().toString(36).slice(2,9);
@@ -506,19 +699,23 @@ document.addEventListener("input",ev=>{const t=ev.target;
   const k=t.dataset?.k;if(!k||!E)return;set(k,t.value);refresh();markDirty(E.id);
   if(/^ev\.(name|date|guests)$/.test(k))renderBar();});
 let lastRemoved=null;
+function arrAt(root,path){let a=pget(root,path);if(!Array.isArray(a)){a=[];pset(root,path,a)}return a}
 document.addEventListener("click",ev=>{
   const t=ev.target.closest("button");if(!t||t.closest(".dialog"))return;
   if(t.dataset.go){go(t.dataset.go);return}
   if(t.id==="addEv"||t.id==="newBtn"){addEvent();return}
   if(t.id==="dupEv"){dupEvent();return}
   if(t.id==="delEv"){const e=E;dialog(`<h3>Delete “${esc(evName(e))}”?</h3><p>This removes the event and its quantities for good.</p>`,[{t:"Cancel"},{t:"Delete event",cls:"danger",fn:()=>removeEvent(e.id)}]);return}
-  if(t.classList.contains("undo")){if(lastRemoved&&EV[lastRemoved.eid]){const{eid,list,i,item}=lastRemoved;const arr=EV[eid][list]||(EV[eid][list]=[]);arr.splice(i,0,item);lastRemoved=null;markDirty(eid);render();t.closest(".toast")?.remove()}return}
+  if(t.classList.contains("undo")){if(lastRemoved&&EV[lastRemoved.eid]){const{eid,list,i,item}=lastRemoved;arrAt(EV[eid],list).splice(i,0,item);lastRemoved=null;markDirty(eid);render();t.closest(".toast")?.remove()}return}
   if(!E)return;
   if(t.dataset.hc!=null){const p=`canapes.${t.dataset.hc}.hc`,c=get(p)||"",nx=c===""?"Hot":c==="Hot"?"Cold":"";set(p,nx);t.dataset.v=nx;t.textContent=nx||"Hot / cold";markDirty(E.id)}
-  else if(t.dataset.additem){const list=t.dataset.additem;(E[list]||(E[list]=[])).push({id:itemId(),name:""});markDirty(E.id);render();
+  else if(t.dataset.additem){const list=t.dataset.additem;arrAt(E,list).push({id:itemId(),name:""});markDirty(E.id);render();
     const inputs=document.querySelectorAll(`input[data-k^="${list}."][data-k$=".name"]`);inputs[inputs.length-1]?.focus()}
-  else if(t.dataset.rmitem){const [list,i]=t.dataset.rmitem.split(":");const item=E[list].splice(+i,1)[0];lastRemoved={eid:E.id,list,i:+i,item};markDirty(E.id);render();
-    toast(`Removed ${item.name||(COURSES[list]?.one.toLowerCase()||"canapé")}`,"Undo")}
+  else if(t.dataset.rmitem){const [list,i]=t.dataset.rmitem.split(":");const item=arrAt(E,list).splice(+i,1)[0];lastRemoved={eid:E.id,list,i:+i,item};markDirty(E.id);render();
+    toast(`Removed ${item.name||(list==="pizza.rows"?"pizza":COURSES[list]?.one.toLowerCase()||"canapé")}`,"Undo")}
+  else if(t.id==="addPizza"){E.pizza={...(E.pizza||{}),on:true};if(!Array.isArray(E.pizza.rows)||!E.pizza.rows.length)E.pizza.rows=[{id:itemId(),name:""}];if(!E.pizza.pkg)E.pizza.pkg="12";markDirty(E.id);render();document.getElementById(id("pizza.rows.0.name"))?.focus()}
+  else if(t.id==="rmPizza"){const eid=E.id;dialog(`<h3>Remove the pizza order?</h3><p>This clears the pizzas and pizza notes for this event.</p>`,[{t:"Cancel"},{t:"Remove pizza order",cls:"danger",fn:()=>{delete EV[eid].pizza;markDirty(eid);render()}}])}
+  else if(t.id==="printPizza"){const e=E.ev||{};doPrint(`Pizza order - ${[e.date,e.name].filter(Boolean).join(" ")||"event"}`,printPizza(E),false)}
   else if(t.dataset.add){set(`diet.${t.dataset.add}.on`,true);render();markDirty(E.id);document.getElementById(id(`diet.${t.dataset.add}.n`))?.focus()}
   else if(t.dataset.rm){if(E.diet)delete E.diet[t.dataset.rm];render();markDirty(E.id)}
   else if(t.dataset.seg){const p=`ev.${t.dataset.seg}`,v=get(p)===t.dataset.v?"":t.dataset.v;set(p,v);
@@ -570,7 +767,7 @@ function renderBackupNote(){
 }
 document.getElementById("backupBtn").onclick=()=>{
   saveLocal();
-  const data=JSON.stringify({app:"chef-niven-canapes",version:3,exported:new Date().toISOString(),events:EV},null,2);
+  const data=JSON.stringify({app:"chef-niven-canapes",version:4,exported:new Date().toISOString(),events:EV,gp:GP},null,2);
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([data],{type:"application/json"}));
   a.download=`chef-niven-events-${new Date().toISOString().slice(0,10)}.json`;document.body.append(a);a.click();
   setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);
@@ -586,6 +783,7 @@ document.getElementById("restoreFile").addEventListener("change",async ev=>{
     let added=0,updated=0;
     Object.entries(inc).forEach(([k,e])=>{if(!e||typeof e!=="object")return;e.id=k;migrate(e);
       if(!EV[k]){EV[k]=e;added++}else if((e.updatedAt||"")>(EV[k].updatedAt||"")){EV[k]=e;updated++}});
+    if(d.gp&&Array.isArray(d.gp.rows)){const have=new Set(GP.rows.map(r=>r.id));d.gp.rows.forEach(r=>{if(r&&!have.has(r.id)){GP.rows.push(r);added++}});if(!GP.cap&&d.gp.cap)GP.cap=d.gp.cap;saveGP()}
     saveLocal();go("all");
     toast(added||updated?`Restored: ${added} new, ${updated} updated`:"Nothing new in that backup");
   }catch{toast("That file isn't a Chef Niven backup.")}
@@ -617,6 +815,10 @@ function printEvent(ev){
   ${[["mains",c.mains,c.mainTotal],["desserts",c.desserts,c.dessertTotal]].map(([list,rows,total])=>rows.length?`<h4>${COURSES[list].many}</h4><table><tr><th class="l">${COURSES[list].one}</th><th>Portions</th><th class="l">Allergens &amp; notes</th></tr>
   ${rows.map((m,i)=>`<tr><td class="nm">${v(m.name)}</td><td class="n b">${nz(m.portions)}</td><td>${v(ev[list][i]?.notes)}</td></tr>`).join("")}
   <tr class="t"><td>Total portions</td><td class="n">${nz(total)}</td><td></td></tr></table>`:"").join("")}
+  ${c.pizza.on?`<h4>Pizza order${c.pizza.pkg?` · package of ${fmt(c.pizza.pkg)}`:""}</h4><table><tr><th class="l">Pizza</th><th>Quantity</th><th class="l">Requirements</th></tr>
+  ${(ev.pizza.rows||[]).map(r=>`<tr><td class="nm">${v(r.name)}</td><td class="n b">${v(r.qty)}</td><td>${v(r.req)}</td></tr>`).join("")}
+  ${PIZZA_DIETS.filter(([k])=>num(ev.pizza.diet?.[k]?.qty)).map(([k,a])=>`<tr><td class="nm">${a}</td><td class="n b">${v(ev.pizza.diet[k].qty)}</td><td>${v(ev.pizza.diet[k].time)}</td></tr>`).join("")}
+  <tr class="t"><td>Total pizzas</td><td class="n">${nz(c.pizza.total)}</td><td>${v(ev.pizza.notes)}</td></tr></table>`:""}
   <h4>Dietary requirements</h4>${dA.length?`<table><tr><th class="l">Requirement</th><th>Guests</th><th class="l">Replaces</th><th class="l">Alternative</th><th>Alt. qty</th><th class="l">Names / table</th></tr>
   ${dA.map(([k,a])=>{const x=ev.diet?.[k]||{};return `<tr><td class="nm">${a}</td><td class="n">${v(x.n)}</td><td>${v(x.rep)}</td><td>${v(x.alt)}</td><td class="n">${nz(c.diet[k].q)}</td><td>${v(x.notes)}</td></tr>`}).join("")}
   <tr class="t"><td>Total</td><td class="n">${nz(c.dn)}</td><td></td><td></td><td class="n">${nz(c.dq)}</td><td></td></tr></table>`:`<p class="none">None for this event.</p>`}
@@ -624,15 +826,16 @@ function printEvent(ev){
   <div class="g2">${pf("Completed by / date",e.completed)}${pf("Chef sign-off / order placed",e.signoff)}</div>`;
 }
 function printCombined(){
-  const {evs,cs,diets,canRows,mainRows,dessertRows,guests,total,mainTotal,dessertTotal}=combinedData();
+  const {evs,cs,diets,canRows,mainRows,dessertRows,pizzaRows,guests,total,mainTotal,dessertTotal,pizzaTotal}=combinedData();
+  const ncell=3+(mainTotal?1:0)+(dessertTotal?1:0)+(pizzaTotal?1:0);
   const vrow=r=>r.vals.map(x=>`<td class="n">${nz(x)}</td>`).join("")+`<td class="n b">${nz(r.vals.reduce((a,b)=>a+b,0))}</td>`;
   const ds=evs.map(e=>e.ev?.date).filter(Boolean).sort(),range=ds.length?(ds[0]===ds.at(-1)?niceDate(ds[0]):`${shortDate(ds[0])} – ${shortDate(ds.at(-1))}`):"";
   const row=f=>cs.map(c=>`<td class="n">${nz(f(c))}</td>`).join("")+`<td class="n b">${nz(cs.reduce((a,c)=>a+f(c),0))}</td>`;
   const hd=evs.map(e=>`<th><div class="eh">${v(evName(e))}</div><div class="ed">${v(shortDate(e.ev?.date))}${e.ev?.service?" · "+v(e.ev.service):""}</div></th>`).join("");
   return `${phead("Combined order",v(range))}
-  <div class="nums ${["n3","n4","n5"][(mainTotal?1:0)+(dessertTotal?1:0)]}"><div><span>Events</span><b>${evs.length}</b></div><div><span>Guests</span><b>${fmt(guests)||"—"}</b></div>${mainTotal?`<div><span>Main portions</span><b>${fmt(mainTotal)}</b></div>`:""}${dessertTotal?`<div><span>Dessert portions</span><b>${fmt(dessertTotal)}</b></div>`:""}<div class="tt"><span>Canapés to prep</span><b>${fmt(total)||"—"}</b></div></div>
-  <h4>Events</h4><table><tr><th class="l">Event</th><th class="l">Date</th><th class="l">Service</th><th class="l">Venue</th><th>Guests</th><th>Canapés</th>${mainTotal?"<th>Mains</th>":""}${dessertTotal?"<th>Desserts</th>":""}</tr>
-  ${evs.map((e,i)=>`<tr><td class="nm">${v(evName(e))}</td><td>${v(shortDate(e.ev?.date))}</td><td>${v(e.ev?.service)}</td><td>${v(e.ev?.venue)}</td><td class="n">${v(e.ev?.guests)}</td><td class="n b">${nz(cs[i].tot.total)}</td>${mainTotal?`<td class="n b">${nz(cs[i].mainTotal)}</td>`:""}${dessertTotal?`<td class="n b">${nz(cs[i].dessertTotal)}</td>`:""}</tr>`).join("")}</table>
+  <div class="nums" style="grid-template-columns:repeat(${ncell},1fr)"><div><span>Events</span><b>${evs.length}</b></div><div><span>Guests</span><b>${fmt(guests)||"—"}</b></div>${mainTotal?`<div><span>Main portions</span><b>${fmt(mainTotal)}</b></div>`:""}${dessertTotal?`<div><span>Dessert portions</span><b>${fmt(dessertTotal)}</b></div>`:""}${pizzaTotal?`<div><span>Pizzas</span><b>${fmt(pizzaTotal)}</b></div>`:""}<div class="tt"><span>Canapés to prep</span><b>${fmt(total)||"—"}</b></div></div>
+  <h4>Events</h4><table><tr><th class="l">Event</th><th class="l">Date</th><th class="l">Service</th><th class="l">Venue</th><th>Guests</th><th>Canapés</th>${mainTotal?"<th>Mains</th>":""}${dessertTotal?"<th>Desserts</th>":""}${pizzaTotal?"<th>Pizzas</th>":""}</tr>
+  ${evs.map((e,i)=>`<tr><td class="nm">${v(evName(e))}</td><td>${v(shortDate(e.ev?.date))}</td><td>${v(e.ev?.service)}</td><td>${v(e.ev?.venue)}</td><td class="n">${v(e.ev?.guests)}</td><td class="n b">${nz(cs[i].tot.total)}</td>${mainTotal?`<td class="n b">${nz(cs[i].mainTotal)}</td>`:""}${dessertTotal?`<td class="n b">${nz(cs[i].dessertTotal)}</td>`:""}${pizzaTotal?`<td class="n b">${nz(cs[i].pizzaTotal)}</td>`:""}</tr>`).join("")}</table>
   <h4>Canapés to prep, by event</h4><table class="combo"><tr><th class="l">Canapé</th>${hd}<th>Total</th></tr>
   ${canRows.map(r=>`<tr><td class="nm">${v(r.name)}</td>${vrow(r)}</tr>`).join("")}
   <tr class="t"><td>Total pieces</td>${row(c=>c.tot.total)}</tr></table>
@@ -642,22 +845,27 @@ function printCombined(){
   ${dessertRows.length?`<h4>Desserts, by event</h4><table class="combo"><tr><th class="l">Dessert</th>${hd}<th>Total</th></tr>
   ${dessertRows.map(r=>`<tr><td class="nm">${v(r.name)}</td>${vrow(r)}</tr>`).join("")}
   <tr class="t"><td>Total portions</td>${row(c=>c.dessertTotal)}</tr></table>`:""}
+  ${pizzaRows.length?`<h4>Pizzas, by event</h4><table class="combo"><tr><th class="l">Pizza</th>${hd}<th>Total</th></tr>
+  ${pizzaRows.map(r=>`<tr><td class="nm">${v(r.name)}</td>${vrow(r)}</tr>`).join("")}
+  <tr class="t"><td>Total pizzas</td>${row(c=>c.pizzaTotal)}</tr></table>`:""}
   <h4>Dietary guests, by event</h4>${diets.length?`<table class="combo"><tr><th class="l">Requirement</th>${evs.map(e=>`<th><div class="eh">${v(evName(e))}</div></th>`).join("")}<th>Total</th></tr>
   ${diets.map(([k,a])=>`<tr><td class="nm">${a}</td>${row(c=>c.diet[k].n)}</tr>`).join("")}
   <tr class="t"><td>Alt. pieces</td>${row(c=>c.dq)}</tr></table>`:`<p class="none">None.</p>`}
   <div class="g2">${pf("Order placed by / date","")}${pf("Checked by","")}</div>`;
 }
-document.getElementById("printBtn").onclick=()=>{
+function doPrint(name,body,land){
   saveLocal();
-  let name,body,land=false;
-  if(cur==="all"){const d=combinedData();if(!d.evs.length){toast("Tick at least one event to print.");return}
-    name=`Combined order - ${d.evs.length} events`;body=printCombined();land=d.evs.length>4}
-  else{const e=E.ev||{};name=`Event order - ${[e.date,e.name].filter(Boolean).join(" ")||"event"}`;body=printEvent(E)}
   document.getElementById("pageSize").textContent=`@page{size:A4 ${land?"landscape":"portrait"};margin:14mm}`;
   document.getElementById("printArea").innerHTML=`<div class="pg${land?" land":""}">${body}</div>`;
   const t=document.title;document.title=name.replace(/[\\/:*?"<>|]/g,"-");
   window.print();
   setTimeout(()=>{document.title=t},1000);
+}
+document.getElementById("printBtn").onclick=()=>{
+  if(page==="gp"){if(!GP.rows.length){toast("Add a dish to print the GP sheet.");return}doPrint("GP sheet",printGP(),false);return}
+  if(cur==="all"){const d=combinedData();if(!d.evs.length){toast("Tick at least one event to print.");return}
+    doPrint(`Combined order - ${d.evs.length} events`,printCombined(),d.evs.length>4);return}
+  const e=E.ev||{};doPrint(`Event order - ${[e.date,e.name].filter(Boolean).join(" ")||"event"}`,printEvent(E),false);
 };
 </script>
 
